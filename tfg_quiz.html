@@ -1,432 +1,2259 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Finance Games — Quiz Officiel</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#f0f0f0;min-height:100vh}
-  .hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:40px 20px;text-align:center;border-bottom:1px solid #1e3a5f}
-  .hero h1{font-size:clamp(24px,5vw,42px);font-weight:700;letter-spacing:-1px;margin-bottom:8px}
-  .hero h1 span{color:#e94560}
-  .hero p{color:#8899aa;font-size:15px;margin-bottom:24px}
-  .stats-row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
-  .stat{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 20px;text-align:center}
-  .stat-num{font-size:22px;font-weight:700;color:#e94560}
-  .stat-label{font-size:11px;color:#8899aa;margin-top:2px}
-  .filters{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:20px}
-  .filter-btn{padding:7px 16px;border-radius:20px;border:1px solid #2a2a3e;background:#1a1a2e;color:#8899aa;font-size:13px;cursor:pointer;transition:all .2s}
-  .filter-btn:hover{border-color:#e94560;color:#fff}
-  .filter-btn.active{background:#e94560;border-color:#e94560;color:#fff;font-weight:600}
-  .quiz-area{max-width:780px;margin:0 auto;padding:0 16px 40px}
-  .progress-bar{background:#1a1a2e;border-radius:10px;height:6px;margin-bottom:8px;overflow:hidden}
-  .progress-fill{background:linear-gradient(90deg,#e94560,#f5a623);height:100%;border-radius:10px;transition:width .4s ease}
-  .progress-info{display:flex;justify-content:space-between;font-size:12px;color:#8899aa;margin-bottom:20px}
-  .qcard{background:#111827;border:1px solid #1e293b;border-radius:16px;padding:28px;margin-bottom:20px}
-  .qcard-meta{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-  .badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
-  .badge-tech{background:#1e3a5f;color:#60a5fa}
-  .badge-market{background:#14352a;color:#4ade80}
-  .badge-brain{background:#2d1b69;color:#a78bfa}
-  .badge-fit{background:#3d1a00;color:#fb923c}
-  .badge-coding{background:#1a0a2e;color:#f472b6}
-  .qnum{font-size:11px;color:#4a5568;font-weight:500}
-  .qtext{font-size:16px;line-height:1.6;color:#e2e8f0;margin-bottom:20px;font-weight:500}
-  .options{display:grid;gap:10px}
-  .opt-btn{width:100%;text-align:left;padding:14px 18px;border-radius:12px;border:1px solid #1e293b;background:#0f172a;color:#cbd5e1;font-size:14px;cursor:pointer;transition:all .2s;line-height:1.5}
-  .opt-btn:hover:not(:disabled){border-color:#e94560;background:#1a0f1f;color:#fff}
-  .opt-btn.correct{border-color:#4ade80;background:#0d2b1d;color:#4ade80}
-  .opt-btn.wrong{border-color:#f87171;background:#2b0d0d;color:#f87171}
-  .opt-btn:disabled{cursor:default}
-  .explanation{margin-top:14px;padding:14px 18px;background:#0f172a;border-left:3px solid #e94560;border-radius:0 8px 8px 0;font-size:13px;color:#94a3b8;line-height:1.6}
-  .explanation strong{color:#e94560}
-  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
-  .nav-btn{padding:10px 24px;border-radius:10px;border:1px solid #2a2a3e;background:#1a1a2e;color:#fff;font-size:14px;cursor:pointer;transition:all .2s}
-  .nav-btn:hover{background:#e94560;border-color:#e94560}
-  .nav-btn.primary{background:#e94560;border-color:#e94560}
-  .nav-btn:disabled{opacity:0.3;cursor:default}
-  .score-card{background:#111827;border:1px solid #1e293b;border-radius:20px;padding:40px;text-align:center;margin:20px 0}
-  .score-big{font-size:72px;font-weight:700;color:#e94560;line-height:1}
-  .score-label{font-size:16px;color:#8899aa;margin-top:8px}
-  .score-msg{font-size:20px;font-weight:600;margin:20px 0;color:#e2e8f0}
-  .breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:24px 0}
-  .bk{background:#0f172a;border-radius:12px;padding:14px;text-align:center}
-  .bk-num{font-size:24px;font-weight:700}
-  .bk-label{font-size:11px;color:#8899aa;margin-top:4px}
-  .restart-btn{background:#e94560;color:#fff;border:none;padding:14px 32px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .2s}
-  .restart-btn:hover{background:#c73652}
-  .timer{background:#e94560;color:#fff;border-radius:8px;padding:4px 12px;font-size:13px;font-weight:600}
-  .ep-tag{font-size:10px;padding:2px 7px;border-radius:8px;background:#1e293b;color:#64748b}
-  #start-screen{text-align:center;padding:40px 20px}
-  #start-screen h2{font-size:28px;font-weight:700;margin-bottom:12px}
-  #start-screen p{color:#8899aa;font-size:15px;margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto}
-  .start-btn{background:#e94560;color:#fff;border:none;padding:16px 40px;border-radius:14px;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s}
-  .start-btn:hover{background:#c73652;transform:translateY(-1px)}
-  .mode-select{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
-  .mode-card{border:2px solid #1e293b;border-radius:14px;padding:16px 24px;cursor:pointer;transition:all .2s;background:#111827}
-  .mode-card:hover{border-color:#e94560}
-  .mode-card.selected{border-color:#e94560;background:#1a0f1f}
-  .mode-card h3{font-size:15px;font-weight:600;margin-bottom:4px}
-  .mode-card p{font-size:12px;color:#8899aa}
-  @media(max-width:480px){.qcard{padding:20px}.opt-btn{padding:12px 14px;font-size:13px}.hero{padding:28px 16px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Finance Games — Quiz & Fiches</title>
+    <style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #0a0a0a;
+        color: #f0f0f0;
+        min-height: 100vh
+    }
+
+    .hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        padding: 40px 20px;
+        text-align: center;
+        border-bottom: 1px solid #1e3a5f
+    }
+
+    .hero h1 {
+        font-size: clamp(22px, 5vw, 40px);
+        font-weight: 700;
+        letter-spacing: -1px;
+        margin-bottom: 8px
+    }
+
+    .hero h1 span {
+        color: #e94560
+    }
+
+    .hero p {
+        color: #8899aa;
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .stats-row {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .stat {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 10px 18px;
+        text-align: center
+    }
+
+    .stat-num {
+        font-size: 20px;
+        font-weight: 700;
+        color: #e94560
+    }
+
+    .stat-label {
+        font-size: 11px;
+        color: #8899aa;
+        margin-top: 2px
+    }
+
+    .tab-nav {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        padding: 16px 20px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid #1e293b
+    }
+
+    .tab-btn {
+        padding: 8px 20px;
+        border-radius: 20px;
+        border: 1px solid #2a2a3e;
+        background: #1a1a2e;
+        color: #8899aa;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all .2s;
+        font-weight: 500
+    }
+
+    .tab-btn:hover {
+        border-color: #e94560;
+        color: #fff
+    }
+
+    .tab-btn.active {
+        background: #e94560;
+        border-color: #e94560;
+        color: #fff
+    }
+
+    .tab-content {
+        display: none
+    }
+
+    .tab-content.active {
+        display: block
+    }
+
+    .filters {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 16px 20px
+    }
+
+    .filter-btn {
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid #2a2a3e;
+        background: #1a1a2e;
+        color: #8899aa;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all .2s
+    }
+
+    .filter-btn:hover {
+        border-color: #e94560;
+        color: #fff
+    }
+
+    .filter-btn.active {
+        background: #e94560;
+        border-color: #e94560;
+        color: #fff;
+        font-weight: 600
+    }
+
+    .quiz-area {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 0 16px 40px
+    }
+
+    .progress-bar {
+        background: #1a1a2e;
+        border-radius: 10px;
+        height: 6px;
+        margin-bottom: 8px;
+        overflow: hidden
+    }
+
+    .progress-fill {
+        background: linear-gradient(90deg, #e94560, #f5a623);
+        height: 100%;
+        border-radius: 10px;
+        transition: width .4s ease
+    }
+
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #8899aa;
+        margin-bottom: 20px
+    }
+
+    .qcard {
+        background: #111827;
+        border: 1px solid #1e293b;
+        border-radius: 16px;
+        padding: 26px;
+        margin-bottom: 20px
+    }
+
+    .qcard-meta {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        align-items: center
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 600
+    }
+
+    .badge-tech {
+        background: #1e3a5f;
+        color: #60a5fa
+    }
+
+    .badge-market {
+        background: #14352a;
+        color: #4ade80
+    }
+
+    .badge-brain {
+        background: #2d1b69;
+        color: #a78bfa
+    }
+
+    .badge-fit {
+        background: #3d1a00;
+        color: #fb923c
+    }
+
+    .badge-coding {
+        background: #1a0a2e;
+        color: #f472b6
+    }
+
+    .ep-tag {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 8px;
+        background: #1e293b;
+        color: #64748b
+    }
+
+    .qnum {
+        font-size: 11px;
+        color: #4a5568;
+        font-weight: 500
+    }
+
+    .qtext {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #e2e8f0;
+        margin-bottom: 18px;
+        font-weight: 500
+    }
+
+    .options {
+        display: grid;
+        gap: 9px
+    }
+
+    .opt-btn {
+        width: 100%;
+        text-align: left;
+        padding: 13px 16px;
+        border-radius: 12px;
+        border: 1px solid #1e293b;
+        background: #0f172a;
+        color: #cbd5e1;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all .2s;
+        line-height: 1.5
+    }
+
+    .opt-btn:hover:not(:disabled) {
+        border-color: #e94560;
+        background: #1a0f1f;
+        color: #fff
+    }
+
+    .opt-btn.correct {
+        border-color: #4ade80;
+        background: #0d2b1d;
+        color: #4ade80
+    }
+
+    .opt-btn.wrong {
+        border-color: #f87171;
+        background: #2b0d0d;
+        color: #f87171
+    }
+
+    .opt-btn:disabled {
+        cursor: default
+    }
+
+    .explanation {
+        margin-top: 12px;
+        padding: 12px 16px;
+        background: #0f172a;
+        border-left: 3px solid #e94560;
+        border-radius: 0 8px 8px 0;
+        font-size: 13px;
+        color: #94a3b8;
+        line-height: 1.6
+    }
+
+    .explanation strong {
+        color: #e94560
+    }
+
+    .nav-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 18px
+    }
+
+    .nav-btn {
+        padding: 10px 22px;
+        border-radius: 10px;
+        border: 1px solid #2a2a3e;
+        background: #1a1a2e;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all .2s
+    }
+
+    .nav-btn:hover {
+        background: #e94560;
+        border-color: #e94560
+    }
+
+    .nav-btn.primary {
+        background: #e94560;
+        border-color: #e94560
+    }
+
+    .nav-btn:disabled {
+        opacity: 0.3;
+        cursor: default
+    }
+
+    .score-card {
+        background: #111827;
+        border: 1px solid #1e293b;
+        border-radius: 20px;
+        padding: 36px;
+        text-align: center;
+        margin: 20px 0
+    }
+
+    .score-big {
+        font-size: 68px;
+        font-weight: 700;
+        color: #e94560;
+        line-height: 1
+    }
+
+    .score-label {
+        font-size: 15px;
+        color: #8899aa;
+        margin-top: 8px
+    }
+
+    .score-msg {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 18px 0;
+        color: #e2e8f0
+    }
+
+    .breakdown {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 10px;
+        margin: 20px 0
+    }
+
+    .bk {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center
+    }
+
+    .bk-num {
+        font-size: 22px;
+        font-weight: 700
+    }
+
+    .bk-label {
+        font-size: 11px;
+        color: #8899aa;
+        margin-top: 4px
+    }
+
+    .restart-btn {
+        background: #e94560;
+        color: #fff;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 8px
+    }
+
+    .restart-btn:hover {
+        background: #c73652
+    }
+
+    #start-screen {
+        text-align: center;
+        padding: 36px 20px
+    }
+
+    #start-screen h2 {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 10px
+    }
+
+    #start-screen p {
+        color: #8899aa;
+        font-size: 14px;
+        margin-bottom: 28px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto
+    }
+
+    .start-btn {
+        background: #e94560;
+        color: #fff;
+        border: none;
+        padding: 15px 36px;
+        border-radius: 14px;
+        font-size: 17px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .2s
+    }
+
+    .start-btn:hover {
+        background: #c73652
+    }
+
+    .mode-select {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 24px
+    }
+
+    .mode-card {
+        border: 2px solid #1e293b;
+        border-radius: 14px;
+        padding: 14px 22px;
+        cursor: pointer;
+        transition: all .2s;
+        background: #111827
+    }
+
+    .mode-card:hover {
+        border-color: #e94560
+    }
+
+    .mode-card.selected {
+        border-color: #e94560;
+        background: #1a0f1f
+    }
+
+    .mode-card h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 4px
+    }
+
+    .mode-card p {
+        font-size: 12px;
+        color: #8899aa
+    }/* Bloomberg styles */
+
+    .bbg-area {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px 16px 60px
+    }
+
+    .bbg-header {
+        background: #ff6600;
+        color: #000;
+        padding: 10px 18px;
+        border-radius: 8px 8px 0 0;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 1px;
+        font-family: monospace;
+        display: flex;
+        align-items: center;
+        gap: 8px
+    }
+
+    .bbg-block {
+        margin-bottom: 20px
+    }
+
+    .bbg-section {
+        background: #111;
+        border: 1px solid #2a2a2a;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 18px
+    }
+
+    .bbg-section h3 {
+        color: #ff6600;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-family: monospace;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        border-bottom: 1px solid #222;
+        padding-bottom: 8px
+    }
+
+    .bbg-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 8px
+    }
+
+    .bbg-card {
+        background: #0a0a0a;
+        border: 1px solid #1e1e1e;
+        border-radius: 8px;
+        padding: 11px 13px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start
+    }
+
+    .bbg-key {
+        background: #ff6600;
+        color: #000;
+        font-family: monospace;
+        font-weight: 700;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+        min-width: 90px;
+        text-align: center;
+        flex-shrink: 0;
+        margin-top: 2px
+    }
+
+    .bbg-desc {
+        font-size: 12px;
+        color: #ccc;
+        line-height: 1.4
+    }
+
+    .bbg-desc small {
+        color: #555;
+        font-size: 11px;
+        display: block;
+        margin-top: 2px
+    }
+
+    .bbg-tip {
+        background: #1a1400;
+        border: 1px solid #ff660022;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 12px;
+        color: #aaa;
+        line-height: 1.7;
+        margin-bottom: 14px
+    }
+
+    .bbg-tip strong {
+        color: #ff6600
+    }/* Formules styles */
+
+    .formula-area {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px 16px 60px
+    }
+
+    .formula-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 14px
+    }
+
+    .formula-card {
+        background: #111827;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        padding: 16px
+    }
+
+    .formula-card h4 {
+        color: #60a5fa;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px
+    }
+
+    .formula-card code {
+        display: block;
+        background: #0a0a0a;
+        color: #4ade80;
+        padding: 10px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        border: 1px solid #1e293b
+    }
+
+    .formula-card p {
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.5
+    }
+
+    .formula-card .tag {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 8px;
+        background: #1e293b;
+        color: #64748b;
+        font-weight: 500
+    }
+
+    @media (max-width: 480px) {
+        .qcard {
+            padding:18px
+        }
+
+        .opt-btn {
+            padding: 11px 13px;
+            font-size:13px
+        }
+
+        .hero {
+            padding:28px 16px
+        }
+
+        .bbg-grid {
+            grid-template-columns:1fr
+        }
+
+        .formula-grid {
+            grid-template-columns: 1fr
+        }
+    }
+    </style>
 </head>
 <body>
-
-<div class="hero">
-  <h1>The Finance Games <span>Quiz</span></h1>
-  <p>158 questions extraites de tous les épisodes — brainteasers, technique, marché, fit</p>
-  <div class="stats-row">
-    <div class="stat"><div class="stat-num">158</div><div class="stat-label">Questions</div></div>
-    <div class="stat"><div class="stat-num">7</div><div class="stat-label">Épisodes</div></div>
-    <div class="stat"><div class="stat-num">5</div><div class="stat-label">Catégories</div></div>
-  </div>
-</div>
-
-<div class="filters" id="filter-bar">
-  <button class="filter-btn active" onclick="setFilter('all',this)">Toutes</button>
-  <button class="filter-btn" onclick="setFilter('tech',this)">Technique</button>
-  <button class="filter-btn" onclick="setFilter('market',this)">Marché</button>
-  <button class="filter-btn" onclick="setFilter('brain',this)">Brainteasers</button>
-  <button class="filter-btn" onclick="setFilter('fit',this)">Fit</button>
-  <button class="filter-btn" onclick="setFilter('coding',this)">Coding</button>
-</div>
-
-<div class="quiz-area">
-  <div id="start-screen">
-    <h2>Prêt à passer l'entretien ?</h2>
-    <p>Teste tes connaissances en finance de marché avec les vraies questions posées lors de The Finance Games. Sélectionne un mode et lance-toi.</p>
-    <div class="mode-select">
-      <div class="mode-card selected" onclick="selectMode('all',this)" id="mode-all">
-        <h3>Mode Complet</h3>
-        <p>Toutes les questions</p>
-      </div>
-      <div class="mode-card" onclick="selectMode('random30',this)" id="mode-random30">
-        <h3>Mode Express</h3>
-        <p>30 questions aléatoires</p>
-      </div>
-      <div class="mode-card" onclick="selectMode('random10',this)" id="mode-random10">
-        <h3>Mode Flash</h3>
-        <p>10 questions rapides</p>
-      </div>
+    <div class="hero">
+        <h1>
+            The Finance Games 
+            <span>Quiz & Fiches</span>
+        </h1>
+        <p>Questions extraites de tous les épisodes · Raccourcis Bloomberg · Formules clés</p>
+        <div class="stats-row">
+            <div class="stat">
+                <div class="stat-num">100+</div>
+                <div class="stat-label">Questions QCM</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">7</div>
+                <div class="stat-label">Épisodes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">3</div>
+                <div class="stat-label">Sections</div>
+            </div>
+        </div>
     </div>
-    <button class="start-btn" onclick="startQuiz()">Commencer le quiz</button>
-  </div>
 
-  <div id="quiz-screen" style="display:none">
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="progress-info">
-      <span id="q-counter">Question 1 / 158</span>
-      <span id="score-live">Score : 0</span>
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('quiz',this)">Quiz interactif</button>
+        <button class="tab-btn" onclick="showTab('bloomberg',this)">Fiche Bloomberg</button>
+        <button class="tab-btn" onclick="showTab('formules',this)">Formules clés</button>
     </div>
-    <div id="question-container"></div>
-    <div class="nav-row">
-      <button class="nav-btn" id="prev-btn" onclick="prevQ()" disabled>← Précédent</button>
-      <button class="nav-btn primary" id="next-btn" onclick="nextQ()">Suivant →</button>
+
+    <!-- TAB QUIZ -->
+    <div id="tab-quiz" class="tab-content active">
+        <div class="filters" id="filter-bar">
+            <button class="filter-btn active" onclick="setFilter('all',this)">Toutes</button>
+            <button class="filter-btn" onclick="setFilter('tech',this)">Technique</button>
+            <button class="filter-btn" onclick="setFilter('market',this)">Marché</button>
+            <button class="filter-btn" onclick="setFilter('brain',this)">Brainteasers</button>
+            <button class="filter-btn" onclick="setFilter('fit',this)">Fit</button>
+            <button class="filter-btn" onclick="setFilter('coding',this)">Coding</button>
+        </div>
+        <div class="quiz-area">
+            <div id="start-screen">
+                <h2>Prêt à passer l'entretien ?</h2>
+                <p>Teste tes connaissances avec les vraies questions posées lors de The Finance Games.</p>
+                <div class="mode-select">
+                    <div class="mode-card selected" onclick="selectMode('all',this)">
+                        <h3>Mode Complet</h3>
+                        <p>Toutes les questions</p>
+                    </div>
+                    <div class="mode-card" onclick="selectMode('random30',this)">
+                        <h3>Mode Express</h3>
+                        <p>30 questions aléatoires</p>
+                    </div>
+                    <div class="mode-card" onclick="selectMode('random10',this)">
+                        <h3>Mode Flash</h3>
+                        <p>10 questions rapides</p>
+                    </div>
+                </div>
+                <button class="start-btn" onclick="startQuiz()">Commencer le quiz</button>
+            </div>
+            <div id="quiz-screen" style="display:none">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-info">
+                    <span id="q-counter">Question 1 / ?</span>
+                    <span id="score-live">Score : 0</span>
+                </div>
+                <div id="question-container"></div>
+                <div class="nav-row">
+                    <button class="nav-btn" id="prev-btn" onclick="prevQ()" disabled>← Précédent</button>
+                    <button class="nav-btn primary" id="next-btn" onclick="nextQ()">Suivant →</button>
+                </div>
+            </div>
+            <div id="result-screen" style="display:none">
+                <div class="score-card">
+                    <div class="score-big" id="final-score">0</div>
+                    <div class="score-label" id="final-label">points</div>
+                    <div class="score-msg" id="score-msg"></div>
+                    <div class="breakdown" id="breakdown"></div>
+                    <button class="restart-btn" onclick="restartQuiz()">Recommencer</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div id="result-screen" style="display:none">
-    <div class="score-card">
-      <div class="score-big" id="final-score">0</div>
-      <div class="score-label" id="final-label">points</div>
-      <div class="score-msg" id="score-msg"></div>
-      <div class="breakdown" id="breakdown"></div>
-      <button class="restart-btn" onclick="restartQuiz()">Recommencer</button>
+    <!-- TAB BLOOMBERG -->
+    <div id="tab-bloomberg" class="tab-content">
+        <div class="bbg-area">
+
+            <div class="bbg-tip">
+                <strong>Comment utiliser Bloomberg Terminal :</strong>
+                 Tape la fonction + 
+                <strong>GO</strong>
+                 (touche Entrée verte). Pour quitter une page : tape la fonction précédente ou appuie sur 
+                <strong>MENU</strong>
+                . Le workflow standard : Ticker + Jaune (marché) + Fonction + GO.
+                    
+            </div>
+
+            <div class="bbg-block">
+                <div class="bbg-header">RECHERCHE & IDENTIFICATION</div>
+                <div class="bbg-section">
+                    <div class="bbg-grid">
+                        <div class="bbg-card">
+                            <span class="bbg-key">SRCH</span>
+                            <div class="bbg-desc">
+                                Recherche de titres
+                                <small>Rechercher par ticker, ISIN, nom</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">SECF</span>
+                            <div class="bbg-desc">
+                                Security Finder
+                                <small>Filtre avancé par classe d'actif</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">EQS</span>
+                            <div class="bbg-desc">
+                                Equity Screen
+                                <small>Screener d'actions multi-critères</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">MEMB</span>
+                            <div class="bbg-desc">
+                                Members of Index
+                                <small>Composition d'un indice (ex: CAC 40)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">ISIN [code] GO</span>
+                            <div class="bbg-desc">
+                                Recherche par ISIN
+                                <small>Identifier une obligation précisément</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bbg-block">
+                <div class="bbg-header">EQUITY — ACTIONS</div>
+                <div class="bbg-section">
+                    <div class="bbg-grid">
+                        <div class="bbg-card">
+                            <span class="bbg-key">DES</span>
+                            <div class="bbg-desc">
+                                Description
+                                <small>Fiche complète de l'entreprise</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">GP</span>
+                            <div class="bbg-desc">
+                                Graph Price
+                                <small>Graphique de cours historique</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">GIP</span>
+                            <div class="bbg-desc">
+                                Intraday Price Graph
+                                <small>Graphique intraday</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">FA</span>
+                            <div class="bbg-desc">
+                                Financial Analysis
+                                <small>Bilan, compte de résultat, cash-flow</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">RV</span>
+                            <div class="bbg-desc">
+                                Relative Value
+                                <small>Comparaison avec les pairs (P/E, EV/EBITDA…)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">WACC</span>
+                            <div class="bbg-desc">
+                                WACC Calculator
+                                <small>Coût moyen pondéré du capital</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">EVT</span>
+                            <div class="bbg-desc">
+                                Events Calendar
+                                <small>Dividendes, résultats, splits à venir</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">RELS</span>
+                            <div class="bbg-desc">
+                                Company Relationships
+                                <small>Filiales, actionnaires, participations</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">BEst</span>
+                            <div class="bbg-desc">
+                                Bloomberg Estimates
+                                <small>Consensus analystes (EPS, revenue…)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">ANR</span>
+                            <div class="bbg-desc">
+                                Analyst Recommendations
+                                <small>Buy/Hold/Sell + target prices</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bbg-block">
+                <div class="bbg-header">FIXED INCOME — OBLIGATIONS</div>
+                <div class="bbg-section">
+                    <div class="bbg-grid">
+                        <div class="bbg-card">
+                            <span class="bbg-key">SRCH → Corp</span>
+                            <div class="bbg-desc">
+                                Recherche d'obligations
+                                <small>Filtrer par émetteur, rating, maturité</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">YAS</span>
+                            <div class="bbg-desc">
+                                Yield & Spread Analysis
+                                <small>Calcul du spread, duration, convexité</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">ALLQ</span>
+                            <div class="bbg-desc">
+                                All Quotes
+                                <small>Toutes les cotations disponibles</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">CAST</span>
+                            <div class="bbg-desc">
+                                Cash Flow Schedule
+                                <small>Tableau des flux de l'obligation</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">CRVD</span>
+                            <div class="bbg-desc">
+                                Curve Display
+                                <small>Courbe des taux gouvernementaux</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">FWCV</span>
+                            <div class="bbg-desc">
+                                Forward Curve
+                                <small>Courbe des taux forwards</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">BCGV</span>
+                            <div class="bbg-desc">
+                                Bloomberg Generic Gov
+                                <small>Courbe souveraine de référence</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">RATD</span>
+                            <div class="bbg-desc">
+                                Credit Ratings
+                                <small>Ratings S&P, Moody's, Fitch</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bbg-block">
+                <div class="bbg-header">PORTFOLIO & RISK</div>
+                <div class="bbg-section">
+                    <div class="bbg-grid">
+                        <div class="bbg-card">
+                            <span class="bbg-key">PORT</span>
+                            <div class="bbg-desc">
+                                Portfolio Analytics
+                                <small>Analyse de portefeuille (performance, risque, attribution)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">PRTU</span>
+                            <div class="bbg-desc">
+                                Portfolio Uploader
+                                <small>Importer un portefeuille depuis Excel</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">PMEN</span>
+                            <div class="bbg-desc">
+                                Portfolio Menu
+                                <small>Menu principal gestion de portefeuille</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">PDSP</span>
+                            <div class="bbg-desc">
+                                Portfolio Display
+                                <small>Voir les positions et valorisations</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">BPRT</span>
+                            <div class="bbg-desc">
+                                Bloomberg Port Report
+                                <small>Rapport de performance vs benchmark</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">MARS</span>
+                            <div class="bbg-desc">
+                                Multi-Asset Risk System
+                                <small>VaR, stress tests, Greeks agrégés</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bbg-block">
+                <div class="bbg-header">DÉRIVÉS & OPTIONS</div>
+                <div class="bbg-section">
+                    <div class="bbg-grid">
+                        <div class="bbg-card">
+                            <span class="bbg-key">OMON</span>
+                            <div class="bbg-desc">
+                                Option Monitor
+                                <small>Chaîne d'options complète (calls/puts par strike)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">OVME</span>
+                            <div class="bbg-desc">
+                                Option Valuation
+                                <small>Pricer d'options avec Greeks en temps réel</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">SKEW</span>
+                            <div class="bbg-desc">
+                                Vol Skew
+                                <small>Visualiser le smile/skew de volatilité</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">HIVG</span>
+                            <div class="bbg-desc">
+                                Historical Implied Vol
+                                <small>Historique de vol implicite vs réalisée</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">VOLS</span>
+                            <div class="bbg-desc">
+                                Vol Surface
+                                <small>Surface de volatilité 3D (strike × maturité)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">SWPM</span>
+                            <div class="bbg-desc">
+                                Swap Manager
+                                <small>Pricer et analyser des swaps de taux</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">FXFA</span>
+                            <div class="bbg-desc">
+                                FX Forward Analysis
+                                <small>Calcul des points forward FX</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">VCUB</span>
+                            <div class="bbg-desc">
+                                Vol Cube
+                                <small>Surface de vol pour swaptions</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bbg-block">
+                <div class="bbg-header">MACRO & DONNÉES ÉCONOMIQUES</div>
+                <div class="bbg-section">
+                    <div class="bbg-grid">
+                        <div class="bbg-card">
+                            <span class="bbg-key">ECO</span>
+                            <div class="bbg-desc">
+                                Economic Calendar
+                                <small>Agenda des publications macro (CPI, NFP, PIB…)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">ECST</span>
+                            <div class="bbg-desc">
+                                Economic Statistics
+                                <small>Données macroéconomiques historiques</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">CENB</span>
+                            <div class="bbg-desc">
+                                Central Banks
+                                <small>Décisions des banques centrales (Fed, BCE, BOJ…)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">WIRP</span>
+                            <div class="bbg-desc">
+                                World Interest Rate Probability
+                                <small>Probabilités de hausse/baisse de taux implicites dans les marchés</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">FXIP</span>
+                            <div class="bbg-desc">
+                                FX Implied Probability
+                                <small>Probabilités implicites sur les devises</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">WEI</span>
+                            <div class="bbg-desc">
+                                World Economic Indicators
+                                <small>Indicateurs économiques mondiaux comparés</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bbg-block">
+                <div class="bbg-header">EXCEL ADD-IN (BDP / BDH / BDS)</div>
+                <div class="bbg-section">
+                    <div class="bbg-tip" style="margin-bottom:12px">Ces formules s'utilisent dans Excel avec le Bloomberg Add-In. Essentiels pour récupérer des données en masse (ex: Fama-French, backtesting).</div>
+                    <div class="bbg-grid">
+                        <div class="bbg-card">
+                            <span class="bbg-key">BDP()</span>
+                            <div class="bbg-desc">
+                                Bloomberg Data Point
+                                <small>=BDP("AAPL US Equity","PX_LAST") → dernier prix</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">BDH()</span>
+                            <div class="bbg-desc">
+                                Bloomberg Data History
+                                <small>=BDH("AAPL US Equity","PX_LAST","1/1/2020","31/12/2023") → série historique</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">BDS()</span>
+                            <div class="bbg-desc">
+                                Bloomberg Data Set
+                                <small>=BDS("INDU Index","INDX_MEMBERS") → membres d'un indice</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">PX_LAST</span>
+                            <div class="bbg-desc">
+                                Dernier prix coté
+                                <small>Champ le plus utilisé en equity</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">PX_TO_BOOK_RATIO</span>
+                            <div class="bbg-desc">
+                                Price-to-Book ratio
+                                <small>Utilisé pour le facteur Value (Fama-French)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">CUR_MKT_CAP</span>
+                            <div class="bbg-desc">
+                                Capitalisation boursière
+                                <small>Pour le facteur taille (Small vs Big)</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">RETURN_COM_EQY</span>
+                            <div class="bbg-desc">
+                                Return on Equity
+                                <small>Utilisé pour le facteur Profitability</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">DVD_SH_12M</span>
+                            <div class="bbg-desc">
+                                Dividende par action 12M
+                                <small>Pour calculer le dividend yield</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bbg-block">
+                <div class="bbg-header">RACCOURCIS CLAVIER TERMINAL</div>
+                <div class="bbg-section">
+                    <div class="bbg-grid">
+                        <div class="bbg-card">
+                            <span class="bbg-key">F1 F1</span>
+                            <div class="bbg-desc">
+                                Aide Bloomberg
+                                <small>Double appui sur F1</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">MENU</span>
+                            <div class="bbg-desc">
+                                Retour au menu principal
+                                <small>Équivalent ESC</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">Touches jaunes</span>
+                            <div class="bbg-desc">
+                                Sélection du marché
+                                <small>Equity, Comdty, Corp, Govt, Curncy, Index, Mtge</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">GO (Entrée verte)</span>
+                            <div class="bbg-desc">
+                                Valider la commande
+                                <small>Toujours terminer par GO</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">MSG</span>
+                            <div class="bbg-desc">
+                                Bloomberg Messages
+                                <small>Messagerie interne Bloomberg</small>
+                            </div>
+                        </div>
+                        <div class="bbg-card">
+                            <span class="bbg-key">HELP HELP</span>
+                            <div class="bbg-desc">
+                                Appel au support Bloomberg
+                                <small>Chat en direct avec les équipes Bloomberg</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-  </div>
-</div>
 
-<script>
-const ALL_QUESTIONS = [
-  {type:'brain',ep:'TFG Ép.1',q:'Combien vaut √π ?',opts:['1,00','1,41','1,77','3,14'],ans:2,exp:'√π ≈ 1,7725. À ne pas confondre avec √2 ≈ 1,41 ou π ≈ 3,14.'},
-  {type:'fit',ep:'TFG Ép.1',q:'Quelles sont les missions principales de la Banque de France, maintenant qu\'il y a la BCE ?',opts:['Elle fixe les taux directeurs européens','Elle cote les entreprises et attribue des cotations de crédit pour la BCE','Elle gère les réserves d\'or mondiales','Elle supervise les banques d\'investissement'],ans:1,exp:'La Banque de France attribue des cotations (cote d\'activité et de crédit) aux entreprises françaises, utilisées par la BCE pour les opérations de refinancement.'},
-  {type:'market',ep:'TFG Ép.1',q:'Quelle est la différence entre le mandat de la Fed et celui de la BCE ?',opts:['La Fed cible uniquement l\'inflation à 2%, la BCE maximise l\'emploi','La Fed a un double mandat (inflation + emploi), la BCE cible uniquement l\'inflation à ~2%','Les deux ont exactement le même mandat','La Fed cible la croissance du PIB, la BCE l\'emploi'],ans:1,exp:'La Fed a un double mandat : stabilité des prix ET emploi maximum. La BCE a un mandat unique : maintenir l\'inflation proche mais en dessous de 2%.'},
-  {type:'market',ep:'TFG Ép.1',q:'D\'où vient l\'objectif d\'inflation à 2% de la BCE ? Pourquoi est-ce qu\'une inflation à 0% serait problématique ?',opts:['0% = pas d\'inflation donc idéal pour les ménages','0% augmente le risque de déflation et paralyse l\'investissement','0% est recommandé par le FMI','0% favorise la compétitivité des exportations'],ans:1,exp:'Une inflation à 0% expose à la déflation : les agents retardent leurs achats en anticipant des baisses de prix, ce qui contracte l\'économie. Le Japon en a souffert pendant des décennies.'},
-  {type:'market',ep:'TFG Ép.1',q:'L\'inflation, qui est-ce qu\'elle impacte le plus ?',opts:['Les riches, car ils détiennent plus d\'actifs','Les pauvres, car leur pouvoir d\'achat est le plus érosé','Elle impacte tout le monde de façon identique','Les entreprises uniquement'],ans:1,exp:'L\'inflation érode principalement le pouvoir d\'achat des ménages à faibles revenus qui consomment la quasi-totalité de leur revenu. Les riches ont des actifs réels (immobilier, actions) qui se revalorisent avec l\'inflation.'},
-  {type:'tech',ep:'TFG Ép.1',q:'Vol à 50%. Prix d\'un straddle de maturité 1 jour sur une action à 100€ ? (Approximation : 2 × 0,4 × S × σ × √T)',opts:['0,4€','2,0€','4,0€','8,0€'],ans:1,exp:'Prix straddle ≈ 2 × 0,4 × 100 × 0,5 × √(1/252) ≈ 2 × 0,4 × 100 × 0,5 × 0,063 ≈ 2€. À 20% de vol, on obtient ~1€. La vol a un impact linéaire sur le prix.'},
-  {type:'tech',ep:'TFG Ép.1',q:'Tu es long call expirant demain. L\'action vaut 100 à la clôture du jeudi, puis ouvre en gap de -10% vendredi et finit là. Tu gagnes ou tu perds ?',opts:['Tu gagnes car tu es long gamma','Tu perds car le call expire hors de la monnaie','Tu es à l\'équilibre car le delta est nul','Tu gagnes grâce au theta positif'],ans:1,exp:'Le call avait un strike proche de 100. Avec un gap de -10%, l\'action vaut 90 à l\'expiration. Le call expire worthless (sans valeur). Tu perds la prime payée.'},
-  {type:'tech',ep:'TFG Ép.1',q:'Action qui bouge de 1% par jour pendant 1 an : volatilité réalisée annualisée ?',opts:['1%','8%','16%','52%'],ans:2,exp:'Vol annualisée = vol journalière × √252 = 1% × √252 ≈ 1% × 15,87 ≈ 16%. C\'est la règle d\'annualisation standard en finance.'},
-  {type:'tech',ep:'TFG Ép.1',q:'Qu\'est-ce qu\'un Var Swap ? Quelle est la corrélation spot-vol en equity ?',opts:['Un swap qui échange vol réalisée contre vol implicite ; corrélation positive','Un swap qui échange variance réalisée contre variance fixe ; corrélation négative','Un swap de taux d\'intérêt variable ; corrélation nulle','Un contrat forward sur indice de volatilité ; corrélation positive'],ans:1,exp:'Un Var Swap échange la variance réalisée (inconnue) contre une variance fixe (strike). En equity, la corrélation spot-vol est négative : quand le marché baisse, la vol implicite monte (skew).'},
-  {type:'tech',ep:'TFG Ép.1',q:'Paramètres qui impactent le prix d\'une option. Quel est l\'impact d\'une hausse de volatilité sur le prix d\'un call ?',opts:['Le prix baisse car l\'option est moins précieuse','Le prix augmente car les chances d\'être ITM augmentent','Aucun impact — la vol n\'est pas un paramètre de Black-Scholes','Le prix augmente uniquement pour les options OTM'],ans:1,exp:'Une hausse de vol augmente le prix de TOUTES les options (call et put), car le payoff d\'une option est asymétrique. Plus le sous-jacent peut bouger, plus la valeur de l\'optionalité est élevée.'},
-  {type:'tech',ep:'TFG Ép.1',q:'Futur pétrole à 80$, spot à 78$, taux nuls, pas de coût de stockage : y a-t-il une opportunité d\'arbitrage ?',opts:['Non, le futur est toujours correctement pricé','Oui : acheter le spot à 78$, vendre le futur à 80$ et encaisser 2$ à maturité','Oui : vendre le spot et acheter le futur','Impossible sans connaître la date de maturité'],ans:1,exp:'Avec taux nuls et pas de coût de stockage, le prix forward théorique = spot = 78$. Or le futur trade à 80$. On achète le spot (78$), vend le futur (80$) → gain garanti de 2$ à maturité. C\'est un arbitrage cash-and-carry.'},
-  {type:'brain',ep:'TFG Ép.1',q:'Tiroir à chaussettes : 2 jaunes, 2 rouges, 2 violettes, 3 noires. Combien en tirer au minimum pour être sûr d\'avoir 2 de la même couleur ?',opts:['2','3','5','9'],ans:2,exp:'Dans le pire cas, on tire 1 de chaque couleur (4 tirages, 4 couleurs différentes). Au 5e tirage, on DOIT avoir une doublon. Donc la réponse est 5.'},
-  {type:'tech',ep:'TFG Ép.1',q:'Call américain vs call européen : lequel est le plus cher ? Que se passe-t-il sur l\'option le jour du versement d\'un dividende ?',opts:['Européen plus cher ; l\'option monte avec le dividende','Américain plus cher ; le call perd de la valeur quand le dividende est détaché','Ils ont toujours le même prix ; aucun impact','Américain plus cher ; l\'option ne bouge pas'],ans:1,exp:'Le call américain vaut au moins autant que l\'européen (droit d\'exercice anticipé). Le dividende fait baisser le prix de l\'action (détachement), donc le call baisse. C\'est pourquoi on peut avoir intérêt à exercer un call américain juste avant un dividende.'},
-  {type:'brain',ep:'TFG Ép.1',q:'Deux boîtes, l\'une contient le double de l\'autre. Tu ouvres la première : 100 000€. Tu gardes ou tu changes ?',opts:['Tu gardes — 50% de gagner ou perdre','Tu changes — l\'espérance de l\'autre boîte est de 125 000€','Indifférent — l\'espérance est identique','Tu changes uniquement si tu es risque lover'],ans:1,exp:'Espérance si tu changes : 0,5 × 50 000 + 0,5 × 200 000 = 125 000€ > 100 000€. Il faut changer ! C\'est le paradoxe de l\'enveloppe — l\'asymétrie de l\'espérance pousse à changer.'},
-  {type:'market',ep:'TFG Ép.2',q:'Taux directeur de la BCE actuellement (ordre de grandeur 2025) ?',opts:['0%','2%','4%','6%'],ans:1,exp:'La BCE a progressivement baissé ses taux en 2024-2025 pour les ramener autour de 2%, après le pic à 4% atteint pour lutter contre l\'inflation post-Covid.'},
-  {type:'market',ep:'TFG Ép.2',q:'Différence entre déflation et désinflation ?',opts:['C\'est la même chose','Déflation = baisse des prix ; désinflation = ralentissement de la hausse des prix','Désinflation = baisse des prix ; déflation = inflation nulle','Déflation = crise économique ; désinflation = récession'],ans:1,exp:'Déflation : les prix BAISSENT (ex: Japon années 90). Désinflation : l\'inflation reste positive mais ralentit (ex: Europe 2023-2024, passer de 8% à 2%). La déflation est dangereuse car elle crée une spirale récessive.'},
-  {type:'tech',ep:'TFG Ép.2',q:'Tu veux une exposition à la volatilité : quel produit te conseilles-tu ?',opts:['Un call OTM sur l\'indice','Un straddle (achat call + put même strike)','Un forward sur le sous-jacent','Une position short sur le VIX'],ans:1,exp:'Un straddle (long call + long put même strike même maturité) est long vega et long gamma. Il gagne si le sous-jacent bouge fortement dans un sens ou dans l\'autre. C\'est le produit idéal pour parier sur une hausse de vol.'},
-  {type:'tech',ep:'TFG Ép.2',q:'Ratio de prix entre un call ATM 1 an et un call ATM 3 mois (même vol, même spot) ?',opts:['1x — ils ont le même prix','2x — le call 1 an vaut deux fois le call 3 mois','4x — la maturité est quadruplée','0,5x — le call court terme coûte plus cher'],ans:1,exp:'Prix call ATM ≈ 0,4 × S × σ × √T. Le ratio est √(1an)/√(3mois) = √(12/3) = √4 = 2. Le call 1 an vaut donc 2x le call 3 mois. La vol évolue en racine du temps.'},
-  {type:'brain',ep:'TFG Ép.2',q:'Train 1 part à 10h à 100km/h, destination à 600km. Train 2 part à 11h à 125km/h. À quelle distance de l\'arrivée le train 2 dépasse-t-il le train 1 ?',opts:['50 km','100 km','200 km','500 km'],ans:1,exp:'À 11h, le train 1 a 100km d\'avance. Le train 2 comble 25km/h. Il faut 4h pour rattraper, soit 4h × 125km/h = 500km parcourus par T2. Distance restante = 600 - 500 = 100km de l\'arrivée.'},
-  {type:'market',ep:'TFG Ép.2',q:'Vega d\'un contrat forward ?',opts:['Positif — sensible à la vol comme une option','Négatif — le forward profite d\'une vol basse','Nul — le forward ne dépend pas de la volatilité','Dépend de la maturité'],ans:2,exp:'Le forward se réplique par call - put (même strike). Le vega du call et du put s\'annulent exactement. Formule : F = S × e^(r-q)T, pas de σ. Le Vega d\'un forward est donc zéro.'},
-  {type:'market',ep:'TFG Ép.3',q:'Capitalisation boursière de LVMH en 2025 (ordre de grandeur) ?',opts:['~100 Mds€','~300 Mds€','~600 Mds€','~1 500 Mds€'],ans:1,exp:'LVMH a vu sa capitalisation baisser depuis le pic. En 2025, elle se situe autour de 300 Mds€, contre plus de 500 Mds€ au pic de 2023.'},
-  {type:'market',ep:'TFG Ép.3',q:'Pourquoi en 2020 les prix du pétrole dans les futures sont-ils passés en négatif ?',opts:['La demande a explosé suite au Covid','Les entrepôts étaient pleins, personne ne pouvait stocker, donc on payait pour se débarrasser du pétrole','Les sanctions russes ont effondré les prix','Le cartel OPEP a inondé volontairement le marché'],ans:1,exp:'En avril 2020, le contrat futures WTI du mois de mai a touché -37$/baril. La demande s\'était effondrée avec les confinements, les capacités de stockage étaient saturées, et les détenteurs du contrat payaient pour éviter la livraison physique.'},
-  {type:'market',ep:'TFG Ép.3',q:'Pourquoi est-il important qu\'une banque centrale soit indépendante ?',opts:['Pour maximiser la croissance économique à court terme','Pour éviter que les décisions monétaires soient dictées par les impératifs électoraux des gouvernements','Pour contrôler la politique budgétaire','Pour fixer les taux d\'intérêt des prêts immobiliers'],ans:1,exp:'L\'indépendance protège la banque centrale des pressions politiques (ex: Trump/Powell). Les gouvernements ont tendance à vouloir des taux bas pour stimuler l\'économie avant les élections, au détriment de la lutte contre l\'inflation.'},
-  {type:'tech',ep:'TFG Ép.3',q:'Taux 6 mois à 5% et taux 1 an à 5%. Le taux forward 6 mois dans 6 mois sera-t-il plus haut ou plus bas que 5% ?',opts:['Plus bas — la courbe est plate donc le forward est inférieur','Égal à 5% exactement — la courbe est plate','Plus haut — pour capitaliser sur la même valeur finale','Impossible à déterminer sans connaître les taux longs'],ans:2,exp:'(1+5%)^1 = (1+5%)^0,5 × (1+f)^0,5. Si les deux taux sont à 5%, le taux forward est exactement 5%. Une courbe plate implique des taux forwards égaux aux taux spots.'},
-  {type:'brain',ep:'TFG Ép.3',q:'Meilleur investissement : prêter son argent tous les jours à 5% annuel ou le prêter pour 6 mois à 5% annuel ?',opts:['6 mois — plus simple et même résultat','Tous les jours — la capitalisation composée quotidienne génère plus','Indifférent — le taux est identique','6 mois — le risque de réinvestissement est éliminé'],ans:1,exp:'Avec la capitalisation composée quotidienne, les intérêts sont eux-mêmes réinvestis chaque jour. Sur 6 mois, le rendement effectif est légèrement supérieur à 5%/2 = 2,5%. Prêter tous les jours est mathématiquement plus rentable.'},
-  {type:'tech',ep:'TFG Ép.3',q:'Dans Black-Scholes, on utilise quelle volatilité ? D\'où vient la vol implicite ?',opts:['Vol historique uniquement — basée sur les données passées','Vol implicite — extraite du prix de marché des options','Un mélange des deux selon la maturité','La vol forward calculée par le modèle GARCH'],ans:1,exp:'Black-Scholes utilise la vol implicite, qui est la vol que le marché anticipe pour l\'avenir. On l\'extrait en inversant la formule : connaissant le prix de l\'option et tous les autres paramètres, on résout pour σ. C\'est le seul paramètre non-observable directement.'},
-  {type:'brain',ep:'TFG Ép.3',q:'Il est 15h00. À quelle heure exactement les aiguilles des heures et des minutes se superposent-elles ?',opts:['15h15 exactement','15h16 et 22 secondes','15h17 et 8 secondes','15h20 exactement'],ans:1,exp:'L\'aiguille des heures avance à 0,5°/min, celle des minutes à 6°/min. À 15h, l\'heure est à 90°. On résout : 6t = 90 + 0,5t → 5,5t = 90 → t = 16 min 21,8 sec. Soit 15h16min22sec.'},
-  {type:'tech',ep:'TFG Ép.3',q:'Qu\'est-ce qu\'un zéro coupon ? Quelle est sa duration ?',opts:['Obligation sans intérêts ; duration = 0','Obligation versant un seul flux à maturité ; duration = maturité','Obligation à taux variable ; duration = 1 an','Obligation perpétuelle ; duration = infinie'],ans:1,exp:'Un zéro coupon ne verse aucun coupon intermédiaire. Tout le flux est à maturité. Sa duration de Macaulay est égale à sa maturité (ex: ZC 3 ans → duration = 3 ans). C\'est l\'obligation avec la duration la plus élevée pour une maturité donnée.'},
-  {type:'tech',ep:'TFG Ép.3',q:'Nvidia vaut 100€, vol 20%, maturité 1 an. Prix approximatif d\'un call ATM ?',opts:['2€','5€','8€','20€'],ans:2,exp:'Approximation call ATM : 0,4 × S × σ × √T = 0,4 × 100 × 0,20 × 1 = 8€. Cette formule vient du développement de Black-Scholes autour de d1≈0 (ATM). À retenir absolument en entretien.'},
-  {type:'tech',ep:'TFG Ép.3',q:'Monte Carlo pour estimer π : quelle est l\'approche ?',opts:['Simuler des marchés financiers jusqu\'à convergence','Tirer des points aléatoires dans un carré et compter ceux dans le cercle inscrit','Intégrer numériquement la fonction de densité normale','Simuler des marches aléatoires sur une grille'],ans:1,exp:'On tire N points aléatoires dans un carré [0,1]². On compte ceux à distance ≤1 de l\'origine (dans le quart de cercle). π ≈ 4 × (points dans le cercle / N). En pricing, Monte Carlo simule des trajectoires d\'actifs pour estimer des espérances.'},
-  {type:'tech',ep:'TFG Ép.5',q:'Qu\'est-ce qu\'un produit hybride ? Un swap 50% SX5E + 50% CMS est-il un hybride ?',opts:['Oui — il mélange equity et taux','Non — c\'est un produit linéaire, pas hybride','Oui — tout produit avec deux sous-jacents est hybride','Non — car le CMS n\'est pas un indice equity'],ans:1,exp:'Un produit hybride implique une non-linéarité entre deux classes d\'actifs (ex: un coupon conditionnel payé SI le SX5E est au-dessus ET si le CMS est en dessous). Un swap de performance 50%/50% est linéaire — chaque desk peut le gérer séparément, ce n\'est pas hybride.'},
-  {type:'tech',ep:'TFG Ép.5',q:'Composantes de la marge quand on vend un autocall : laquelle est la principale marge instantanée ?',opts:['La marge de vol stochastique','La marge upfront (valeur vendue au-dessus de la valeur théorique)','La marge de funding','La marge de delta hedging'],ans:1,exp:'La marge principale est upfront : l\'autocall vaut théoriquement 98%, on le vend 100%. Les 2% sont la marge upfront immédiate. S\'y ajoutent : technical margin (réplication d\'options exotiques), funding margin, et marge de skew/surface de vol.'},
-  {type:'tech',ep:'TFG Ép.5',q:'Qu\'est-ce qu\'un Credit Default Swap (CDS) ?',opts:['Un swap de taux d\'intérêt lié au crédit','Une assurance contre le risque de défaut : l\'acheteur paie des primes, le vendeur paye en cas de défaut','Un contrat forward sur des obligations d\'entreprise','Un indice mesurant le risque de crédit du marché'],ans:1,exp:'Un CDS fonctionne comme une assurance : l\'acheteur paie des primes (spread × notionnel) au vendeur. En cas de défaut de l\'entité de référence, le vendeur verse (1 - taux de recouvrement) × notionnel. Permet de se couvrir ou de spéculer sur le risque de crédit.'},
-  {type:'tech',ep:'TFG Ép.5',q:'En equity, tu es long ou short delta sur un Var Swap ? (Corrélation spot-vol négative)',opts:['Long delta — tu veux que le marché monte','Short delta — quand le spot baisse, la vol monte, donc ta position Var Swap gagne','Neutre delta — les Var Swaps ont un delta nul','Long delta uniquement si le strike de variance est élevé'],ans:1,exp:'Tu es long Var Swap = tu reçois variance réalisée. En equity, corrélation spot-vol négative : quand le spot baisse, la vol monte, la variance réalisée augmente → tu gagnes. Tu profites donc d\'une baisse du marché → tu es short delta.'},
-  {type:'tech',ep:'TFG Ép.5',q:'Trader ayant vendu un autocall (donc long vol) : as-tu intérêt à traiter du Var Swap ? Long ou short ?',opts:['Long Var Swap pour accumuler encore plus de vol','Short Var Swap pour se débarrasser de l\'exposition vol','Long Var Swap pour hedger le gamma','Pas intérêt à trader du Var Swap dans ce contexte'],ans:1,exp:'En vendant un autocall, tu es acheteur implicite de vol (longvega). Pour hedger cette exposition, tu vends un Var Swap (short variance) : si la vol réalisée est faible, ton PNL Var Swap compense la perte sur ton autocall.'},
-  {type:'tech',ep:'TFG Ép.5',q:'Qu\'est-ce qu\'un floor en taux ? Pourquoi un client vendrait-il un floor à strike 0% en juin 2020 ?',opts:['Il anticipe une hausse des taux et veut collecter la prime','Il anticipe que les taux resteront positifs, donc le floor ne se déclenchera jamais — il encaisse la prime gratuitemennt','Il veut se protéger contre une hausse de taux','Il veut créer une exposition au taux Euribor'],ans:1,exp:'Un floor à 0% : l\'acheteur du floor reçoit si le taux passe sous 0%. En juin 2020, les taux européens étaient légèrement négatifs et risquaient de le rester. Le vendeur du floor pariait que les taux ne descendraient pas davantage, encaissant la prime.'},
-  {type:'coding',ep:'TFG Ép.5',q:'Suite de Fibonacci : comment l\'initialiser correctement en code ?',opts:['F(0)=1, F(1)=1, F(n)=F(n-1)+F(n-2)','F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)','F(0)=0, F(1)=0, F(n)=F(n-1)+F(n-2)','F(0)=1, F(1)=2, F(n)=F(n-1)+F(n-2)'],ans:1,exp:'La suite de Fibonacci standard : 0, 1, 1, 2, 3, 5, 8, 13... Initialisation : F(0)=0, F(1)=1, puis F(n)=F(n-1)+F(n-2). En entretien finance/quant, c\'est une question de base sur la récursion.'},
-  {type:'tech',ep:'TFG Ép.5',q:'Différence entre futur et forward : pourquoi les forwards existent encore malgré le risque de contrepartie plus élevé ?',opts:['Les forwards sont moins chers car il n\'y a pas de marge','Les forwards offrent une flexibilité totale : sous-jacent, strike, maturité sur mesure','Les forwards ont un rendement supérieur aux futurs','Les forwards sont réglementés différemment des futurs'],ans:1,exp:'Les futurs sont standardisés (taille de contrat fixe, échéances fixes, sous-jacents listés). Les forwards sont OTC (gré à gré) : on peut choisir n\'importe quel notionnel, strike, maturité, sous-jacent. Parfait pour les couvertures sur mesure d\'une exposition spécifique.'},
-  {type:'tech',ep:'TFG Ép.5',q:'Impact de la volatilité sur le prix d\'une option d\'achat (call) : sens de la relation ?',opts:['Négatif : une vol plus haute rend le call moins précieux','Nul : la vol n\'impacte pas le prix du call','Positif : une vol plus haute augmente le prix du call','Dépend si le call est ITM ou OTM'],ans:2,exp:'Le Vega d\'un call est TOUJOURS positif. Plus la vol est élevée, plus le sous-jacent peut atteindre des niveaux éloignés du strike. Le payoff asymétrique d\'un call (gain illimité, perte limitée à la prime) bénéficie directement de cette dispersion.'},
-  {type:'brain',ep:'TFG Ép.5',q:'Combien y a-t-il de fois le chiffre 9 entre 1 et 1000 ?',opts:['100','200','300','999'],ans:2,exp:'Compter par position : unités (9, 19, 29... 99 fois), dizaines (90-99 = 10 fois × 10 = 100 occurrences), centaines (900-999 = 100 occurrences). Total : 100 + 100 + 100 = 300.'},
-  {type:'tech',ep:'TFG Ép.6',q:'C\'est quoi le VIX ? Comment est-il calculé ? Quel est son équivalent européen ?',opts:['Indice de la peur : vol implicite 30j du S&P 500 ; calculé via options SPX ; équivalent européen = VSTOXX','Indice de corrélation entre actions ; calculé par régression ; équivalent = EUROSTOXX 50','Vol historique 30j du S&P 500 ; calculé sur données passées ; équivalent = VXN','Indice de vol du Nasdaq ; calculé via options ETF ; pas d\'équivalent européen'],ans:0,exp:'Le VIX mesure la vol implicite annualisée à 30 jours sur le S&P 500, calculé à partir du smile d\'options SPX. Un VIX < 20 = calme, > 30 = stress. L\'équivalent européen est le VSTOXX (basé sur l\'EuroStoxx 50).'},
-  {type:'market',ep:'TFG Ép.6',q:'Top 3 des valeurs du S&P 500 par capitalisation boursière en 2025 ?',opts:['Apple, Microsoft, Amazon','Nvidia, Microsoft, Apple','Apple, Alphabet, Meta','Microsoft, Nvidia, Tesla'],ans:1,exp:'En 2025, Nvidia a dépassé Microsoft et Apple pour devenir la première capitalisation mondiale grâce à la demande en GPU pour l\'IA. Le top 3 est : Nvidia (~3 000-4 000 Mds$), Microsoft, Apple.'},
-  {type:'tech',ep:'TFG Ép.6',q:'Sensibilité d\'un call aux taux d\'intérêt (Rho) : quel est l\'impact d\'une hausse de taux sur un call ?',opts:['Le call perd de la valeur — les taux réduisent le prix forward','Le call gagne de la valeur — les taux augmentent le prix forward','Aucun impact — le Rho est nul pour les options vanilles','Le call perd de la valeur uniquement s\'il est OTM'],ans:1,exp:'Rho call > 0 : une hausse de taux augmente le prix forward (F = S × e^rT), ce qui augmente la valeur intrinsèque future attendue du call. Intuition : détenir un call libère du capital que l\'on peut investir au taux sans risque. Pour un put, Rho < 0.'},
-  {type:'tech',ep:'TFG Ép.6',q:'C\'est quoi une stratégie vol target ?',opts:['Une stratégie qui vend la vol quand elle est élevée','Une stratégie qui ajuste dynamiquement l\'allocation entre actif risqué et cash pour maintenir une volatilité cible du portefeuille','Une stratégie de trading sur options visant à acheter la vol implicite','Un hedge fund spécialisé dans les produits de vol'],ans:1,exp:'Vol target : on définit une vol cible (ex: 10%). Si la vol réalisée du portefeuille dépasse 10%, on réduit l\'exposition à l\'actif risqué. Si elle est inférieure, on augmente. Cela crée mécaniquement une force acheteuse en période de calme et vendeuse en période de stress.'},
-  {type:'tech',ep:'TFG Ép.6',q:'Qu\'est-ce qu\'un autocall ? Quelles sont ses composantes principales ?',opts:['Une obligation convertible ; composantes : obligation + call sur actions','Un produit qui peut être remboursé par anticipation si le sous-jacent franchit une barrière ; composantes : coupon conditionnel + PDI + barrière de remboursement','Un ETF à levier ; composantes : futures + swap de taux','Un produit de taux à coupon variable ; composantes : floor + cap + swap'],ans:1,exp:'Un autocall est remboursé automatiquement si le sous-jacent est au-dessus d\'une barrière à une date d\'observation. Composantes : barrière de remboursement (haute), barrière de coupon, barrière PDI (Protection du Capital Down and In) qui détermine la perte en capital si jamais le sous-jacent s\'effondre.'},
-  {type:'tech',ep:'TFG Ép.6',q:'Si la volatilité du sous-jacent augmente, le coupon d\'un Athena ou Phoenix augmente ou diminue ?',opts:['Diminue — plus de vol = plus de risque pour le structureur','Augmente — plus de vol = le structureur peut offrir un coupon plus élevé pour compenser le risque','Reste inchangé — le coupon est fixé à l\'émission','Dépend du niveau de la barrière PDI'],ans:1,exp:'Quand la vol augmente, la valeur des options vendues implicitement dans le produit (notamment le put down-and-in) augmente. Le structureur reçoit plus de prime d\'option, ce qui lui permet d\'offrir un coupon plus élevé à l\'investisseur.'},
-  {type:'brain',ep:'TFG Ép.6',q:'Tu fais le 1er tour d\'un stade à 5 km/h. Pour avoir une moyenne de 10 km/h sur les 2 tours, à quelle allure dois-tu courir le 2e tour ?',opts:['15 km/h','20 km/h','Infiniment vite','10 km/h'],ans:2,exp:'Pour une moyenne de 10 km/h sur 2 tours, il faut que le temps total soit T_total = 2L/10. Or le 1er tour prend déjà T1 = L/5 = 2L/10. Il ne reste plus de temps pour le 2e tour. C\'est mathématiquement impossible !'},
-  {type:'market',ep:'The Final',q:'Prix d\'1 kg d\'or (ordre de grandeur 2025) ?',opts:['~3 000€/kg','~30 000€/kg','~80 000€/kg','~300 000€/kg'],ans:2,exp:'L\'or est coté en dollars par once troy (~31g). À ~3 000$/once en 2025, cela donne ~3 000/0,031 ≈ 97 000$/kg ≈ ~80 000-90 000€/kg. Une question classique pour tester les ordres de grandeur des marchés matières premières.'},
-  {type:'tech',ep:'The Final',q:'Vega d\'un forward construit comme call - put européen (même strike) : quel est son signe ?',opts:['Positif','Négatif','Nul — le vega du call et du put s\'annulent exactement','Dépend de la maturité'],ans:2,exp:'Par la parité put-call : F = Call - Put. Le Vega(Call) = Vega(Put) pour des options avec même strike, même maturité, même sous-jacent. Donc Vega(Forward) = Vega(Call) - Vega(Put) = 0. Si le call est américain (exercice anticipé possible), la parité exacte ne tient plus.'},
-  {type:'brain',ep:'The Final',q:'Avec 3 dés, quelle est la probabilité d\'obtenir la somme de 18 ?',opts:['1/6','1/36','1/216','3/216'],ans:2,exp:'La seule façon d\'obtenir 18 avec 3 dés est (6,6,6). La probabilité est (1/6)³ = 1/216 ≈ 0,46%.'},
-  {type:'tech',ep:'The Final',q:'Si tu es long un call binaire dans la monnaie, quel est le signe de ton Vega ?',opts:['Positif — plus de vol = plus de chances d\'être ITM','Négatif — plus de vol augmente la chance de sortir de la zone gagnante','Nul — les options binaires n\'ont pas de Vega','Dépend de la distance au strike'],ans:1,exp:'Un call binaire ITM paye 1 si S_T > K, 0 sinon. Si tu es déjà ITM, une hausse de vol augmente la probabilité que le prix sorte de la zone (revienne sous le strike). Le Vega est donc NÉGATIF pour un binaire ITM. C\'est l\'inverse d\'une option vanille.'},
-  {type:'tech',ep:'The Final',q:'Prix forward d\'un sous-jacent sur 5 ans versant 10% de dividendes par an, avec des taux d\'intérêt nuls ?',opts:['~50%','~60%','~80%','~100%'],ans:1,exp:'F = S × (1-q)^T = 100% × (1-0,10)^5 = 0,90^5 ≈ 59,05%. Avec taux nuls, le forward est simplement le spot diminué des dividendes actualisés. On retire 10% par an pendant 5 ans : 100 × 0,9^5 ≈ 60%.'},
-  {type:'tech',ep:'The Final',q:'Qu\'est-ce que la convergence garantie d\'un futur ? Si le futur trade au-dessus de sa valeur théorique, que fais-tu ?',opts:['Tu achètes le futur et vends le sous-jacent','Tu vends le futur et achètes le sous-jacent spot (cash-and-carry)','Tu attends que le marché se corrige naturellement','Tu achètes des calls sur le futur'],ans:1,exp:'La convergence garantie : à maturité, le prix du futur converge obligatoirement vers le spot. Si le futur est surévalué : vendre le futur (overpriced) + acheter le spot → à maturité, tu livres le spot et encaisses la différence. Gain garanti = arbitrage.'},
-  {type:'tech',ep:'The Final',q:'Différence entre stratégie momentum et mean reversion ?',opts:['Momentum = parier sur une correction ; mean reversion = parier sur la continuation','Momentum = parier sur la continuation de la tendance ; mean reversion = parier sur un retour à la moyenne','Elles sont identiques mais appliquées à des horizons différents','Momentum = long vol ; mean reversion = short vol'],ans:1,exp:'Momentum : ce qui monte continue de monter, ce qui baisse continue de baisser. On suit la tendance. Mean reversion : les prix tendent à revenir vers leur moyenne historique. On parie contre les mouvements extrêmes. Ce sont des approches fondamentalement opposées.'},
-  {type:'tech',ep:'The Final',q:'Var Swap standard vs Var Swap capé : lequel est le moins cher ?',opts:['Le standard — il offre moins de protection','Le capé — car la protection est limitée, le vendeur peut offrir un meilleur prix','Ils ont le même prix en théorie','Dépend du niveau du cap'],ans:1,exp:'Le Var Swap capé limite le payoff maximum que peut recevoir l\'acheteur. En achetant un Var Swap capé, l\'acheteur vend implicitement un call sur la variance. Il collecte cette prime supplémentaire → le Var Swap capé coûte moins cher que le standard.'},
-  {type:'market',ep:'The Final',q:'Kevin Warsh est nommé à la tête de la Fed. Quels 3 indicateurs regardes-tu en priorité ?',opts:['PIB, chômage, CPI','CPI (inflation), taux de chômage, taux directeurs de la BCE','Taux 10 ans japonais, yen, or','Balance commerciale, M2, taux de croissance'],ans:0,exp:'Le mandat de la Fed est dual : stabilité des prix et plein emploi. Les 3 indicateurs clés : CPI (inflation), taux de chômage (emploi), et les taux longs (ex: US 10 ans) comme signal des anticipations de marché.'},
-  {type:'tech',ep:'The Final',q:'Tu es short d\'un forward et le dividende est annulé. Tu gagnes ou tu perds ?',opts:['Tu gagnes — le forward monte, or tu es short','Tu perds — le forward baisse sans dividende','Aucun impact — le forward ne dépend pas des dividendes','Tu gagnes car le forward se normalise'],ans:0,exp:'F = S × e^(r-q)T. Si le dividende (q) est annulé (q=0), le prix forward augmente (moins de cash flows sortant du sous-jacent). Tu es short forward = tu vas devoir acheter plus cher. Tu perds. Réponse : tu perds.'},
-  {type:'tech',ep:'The Final',q:'Taux 1 an à 2%, taux 2 ans à 3% : le taux forward 1 an dans 1 an est-il supérieur ou inférieur à 3% ?',opts:['Inférieur à 3%','Égal à 3%','Supérieur à 3%','Impossible à calculer'],ans:2,exp:'(1,03)² = (1,02) × (1+f). (1,03)² / (1,02) = 1+f. f = 1,0609/1,02 - 1 ≈ 4%. Le taux forward est supérieur à 3%. Pour qu\'une courbe croissante soit cohérente, les taux forwards doivent être encore plus élevés que les taux spots.'},
-  {type:'brain',ep:'The Final',q:'Développement limité de 1/(1+x) à l\'ordre 1 ?',opts:['1 + x','1 - x','1/(1-x)','x - 1'],ans:1,exp:'DL de 1/(1+x) en x=0 à l\'ordre 1 : 1 - x + O(x²). Utile pour les approximations en finance (taux faibles, rendements proches de zéro). À ne pas confondre avec ln(1+x) ≈ x ou e^x ≈ 1+x.'},
-  {type:'tech',ep:'The Final',q:'Qu\'est-ce qu\'un call up-and-out ? Combien vaut un call 100 up-and-out 80 quand le spot est à 100 ?',opts:['Un call désactivé si le spot descend sous 80 ; valeur ~8€','Un call désactivé si le spot monte au-dessus de 80 ; valeur = 0','Un call activé si le spot monte au-dessus de 80 ; valeur = call vanille','Un call avec cap à 80% de gain ; valeur ~5€'],ans:1,exp:'Un call up-and-out est désactivé si le spot TOUCHE la barrière haute (80). Or la barrière est à 80 et le spot est déjà à 100 > 80. La barrière a été franchie → le call est mort, il vaut 0. Attention : la barrière up-and-out est au-DESSUS du spot initial.'},
-  {type:'tech',ep:'The Final',q:'Tu donnes un prix en vol sur un call. Le vendeur te corrige : c\'était un put. Tu changes ton niveau de vol ?',opts:['Oui — un call et un put ont des vols implicites différentes','Non — par la parité put-call, call et put ATM ont la même vol implicite','Oui — sauf si les options sont ATM','Dépend de la maturité et du smile de vol'],ans:1,exp:'Par la parité put-call européenne : C - P = F - K × e^(-rT). À même strike et même maturité, le vol implicite est identique pour call et put (c\'est le principe du smile de vol). Donc non, on ne change pas le niveau de vol.'},
-  {type:'tech',ep:'The Final',q:'Qu\'est-ce qu\'un butterfly en options ? Tu es long ou short si tu vends call+put ATM et achètes options OTM des deux côtés ?',opts:['Long butterfly — tu profites si le sous-jacent reste stable','Short butterfly — tu profites si le sous-jacent bouge fortement','Long butterfly — tu profites si la vol monte','Short butterfly — tu profites si la vol baisse'],ans:0,exp:'Vendre call+put ATM (= short straddle) et acheter OTM des deux côtés (= long strangle) constitue un SHORT butterfly. Un long butterfly = acheter call+put ATM + vendre OTM des deux côtés. Il gagne si le spot reste proche du strike ATM.'},
-  {type:'brain',ep:'The Final',q:'Info privilégiée : une action prend +20% demain. Quelle stratégie optionnelle mets-tu en place ?',opts:['Acheter des calls OTM pour maximiser le levier','Vendre des puts pour collecter la prime','Acheter des calls — mais c\'est légal car c\'est une stratégie directionnelle','Rien — utiliser une information privilégiée est illégal (délit d\'initié)'],ans:3,exp:'Utiliser une information non publique pour trader est un délit d\'initié (insider trading), punissable pénalement. En France, l\'AMF surveille les anomalies de trading avant des annonces. La bonne réponse en entretien : reconnaître l\'illégalité ET expliquer la stratégie théorique (achat de calls).'},
-  {type:'coding',ep:'The Final',q:'Comment coder N factoriel en Python avec une boucle ?',opts:['result = 0; for i in range(1,N+1): result += i','result = 1; for i in range(1,N+1): result *= i','result = N; while N > 0: result *= N; N -= 1','import math; return math.factorial(N)'],ans:1,exp:'N! = 1 × 2 × 3 × ... × N. On initialise result=1 (élément neutre de la multiplication) et on multiplie successivement. Note : math.factorial() marche aussi mais en entretien, écrire la boucle from scratch est attendu.'},
-  {type:'tech',ep:'The Final',q:'Plus grand delta : un put ATM classique ou un put down-and-in ATM (barrière à 60) ?',opts:['Put ATM classique — delta ~-0,5','Put down-and-in — son delta est plus fort','Ils ont le même delta','Put down-and-in — uniquement si activé'],ans:0,exp:'Le put down-and-in (PDI) n\'existe que si le spot descend sous la barrière (60). Si on est ATM (spot=100, barrière=60), la probabilité d\'activation est non nulle mais faible. Le delta du PDI est plus petit en valeur absolue que celui du put vanille ATM (~-0,5).'},
-  {type:'market',ep:'Candidate Ép.2',q:'Qui est le chairman de la Fed nommé récemment (2025) ?',opts:['Jerome Powell','Janet Yellen','Kevin Warsh','Ben Bernanke'],ans:2,exp:'En 2025, Trump a nommé Kevin Warsh pour prendre la tête de la Fed. Kevin Warsh était déjà gouverneur de la Fed de 2006 à 2011. Il est connu pour ses positions plus hawkish.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Quel est le delta d\'un call out-of-the-money proche de la maturité ?',opts:['Proche de -0,5','Proche de +0,5','Proche de 0','Proche de +1'],ans:2,exp:'Un call OTM proche de la maturité a un delta proche de 0 : la probabilité que le sous-jacent finisse au-dessus du strike est très faible. Le delta d\'un call varie entre 0 (très OTM) et 1 (très ITM), avec ~0,5 à la monnaie.'},
-  {type:'brain',ep:'Candidate Ép.2',q:'Action à 100€. Jour 1 : +10%. Jour 2 : -10%. Tu gagnes, perds ou es à l\'équilibre ?',opts:['Gain — 10% de hausse annule 10% de baisse','Break even — les pourcentages s\'annulent','Perte — 100 × 1,10 × 0,90 = 99€','Gain — car la hausse du Jour 1 crée une base plus élevée'],ans:2,exp:'100 × 1,10 = 110. 110 × 0,90 = 99. Tu perds 1€ car le -10% s\'applique à une base plus élevée (110 au lieu de 100). C\'est un piège classique : les rendements composés ne s\'annulent pas arithmétiquement.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Qu\'est-ce qu\'un straddle ?',opts:['Achat d\'un call et d\'un put avec des strikes différents (strangle)','Achat d\'un call et d\'un put avec le même strike et même maturité','Vente d\'un call et achat d\'un put même strike','Achat d\'un call avec deux maturités différentes'],ans:1,exp:'Straddle = long call + long put, MÊME strike, MÊME maturité. Coûteux (on paie deux primes) mais on profite si le sous-jacent bouge fortement dans un sens OU dans l\'autre. Le strangle (strikes différents) est moins cher mais demande un mouvement plus fort.'},
-  {type:'brain',ep:'Candidate Ép.2',q:'Superficie de la France en km² (ordre de grandeur) ?',opts:['~200 000 km²','~350 000 km²','~550 000 km²','~900 000 km²'],ans:2,exp:'La France métropolitaine couvre environ 551 695 km². Guestimate : Paris-Marseille ≈ 750km (hauteur), Paris-Brest ≈ 600km (largeur). Forme hexagonale ≈ 0,65 × 750 × 600 ≈ 290 000 km² (sous-estimation). La vraie réponse est ~550 000 km².'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Duration d\'un zéro coupon de maturité 3 ans ?',opts:['0 an','1,5 an','3 ans','Dépend du taux d\'actualisation'],ans:2,exp:'La duration de Macaulay d\'un zéro coupon est toujours égale à sa maturité. Intuition : il n\'y a qu\'un seul flux, à maturité. Il n\'y a rien à peser avant. Duration = 3 ans.'},
-  {type:'market',ep:'Candidate Ép.2',q:'1 once d\'or ou 10 barils de pétrole ? (Approximation 2025)',opts:['L\'once d\'or — elle vaut ~3 000$','Les barils de pétrole — ils valent ~700$','Les barils — le pétrole est plus rare','Équivalent — même valeur'],ans:0,exp:'Cours 2025 : or ~3 000$/once. Pétrole ~70$/baril → 10 barils = 700$. Donc l\'once d\'or vaut ~4x les 10 barils. Choisir l\'or est clairement optimal.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Pourquoi critique-t-on la normalité de la distribution des rendements ?',opts:['Les rendements sont toujours positifs, pas négatifs','Les queues épaisses (fat tails) sous-estiment la probabilité des événements extrêmes','La distribution normale s\'applique mieux aux taux qu\'aux actions','Les rendements suivent une loi log-normale, pas normale'],ans:1,exp:'En réalité, les rendements financiers ont des queues épaisses (leptokurtose) : les crashes et rallyes extrêmes arrivent bien plus souvent que ne le prédit la loi normale. Black-Scholes sous-estime donc systématiquement le risque de queues.'},
-  {type:'brain',ep:'Candidate Ép.2',q:'Futur sur matière première : tu préfères une courbe en contango ou en backwardation ?',opts:['Contango — les prix futurs sont plus élevés que le spot, donc tu gagnes','Backwardation — les prix futurs sont inférieurs au spot, donc tu gagnes si tu es acheteur de futur','Indifférent — cela dépend de ta position','Contango si tu es vendeur, backwardation si tu es acheteur'],ans:1,exp:'En backwardation, le futur est moins cher que le spot. Si tu achètes le futur et que la courbe revient vers le spot, tu réalises un gain de "roll yield". Les matières premières en backwardation (pétrole en période de tension) récompensent les acheteurs de futurs.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Loi normale : probabilité d\'être à plus d\'un écart-type de la moyenne (dans les deux sens) ?',opts:['~5%','~16%','~32%','~68%'],ans:2,exp:'La règle des 68-95-99,7 : 68% des observations sont dans [-1σ, +1σ]. Donc 32% sont en dehors. Chaque queue contient ~16%. Cette règle est fondamentale en statistiques financières et directement utilisée dans Black-Scholes.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Bull spread (call spread) : définition. Skew de vol en equity : de quel côté ?',opts:['Acheter call haut + vendre call bas ; skew du côté call (vol call > vol put)','Acheter call bas + vendre call haut (même sous-jacent) ; skew du côté put (vol put > vol call)','Acheter put + vendre call ; skew neutre en equity','Vendre put + acheter call ; skew du côté call'],ans:1,exp:'Bull spread : long call strike bas + short call strike haut. Coûte une prime nette, profite si le sous-jacent monte jusqu\'au strike haut. En equity, le skew est du côté put : les puts OTM coûtent plus cher car les investisseurs les achètent pour se protéger contre les crashs.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'VaR 99% = -10M€ sur un portefeuille : qu\'est-ce que cela signifie ?',opts:['Le portefeuille perdra exactement 10M€ dans 1% des cas','Il y a 1% de probabilité de perdre PLUS de 10M€ sur la période considérée','Le portefeuille ne peut pas perdre plus de 10M€','Le rendement moyen est de -10M€ sur la période'],ans:1,exp:'La VaR à 99% sur 1 jour = -10M€ signifie : dans 1% des jours (environ 2,5 jours par an), la perte sera SUPÉRIEURE à 10M€. C\'est une mesure de queue : elle dit ce qui se passe dans les 1% pires scénarios, pas ce qui se passe exactement.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Variance de la somme de deux variables aléatoires corrélées X1 et X2 ?',opts:['Var(X1) + Var(X2)','Var(X1) + Var(X2) + 2×Cov(X1,X2)','Var(X1) × Var(X2)','Var(X1) + Var(X2) - 2×Cov(X1,X2)'],ans:1,exp:'Var(X1+X2) = Var(X1) + Var(X2) + 2×Cov(X1,X2). Si les variables sont indépendantes, Cov=0 et la formule se simplifie. En portfolio theory, c\'est la base du calcul de variance d\'un portefeuille (matrice de covariance).'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Black-Scholes : quels sont ses 7 paramètres ?',opts:['Prix spot, strike, maturité, vol, taux sans risque, dividende, taux repo','Prix spot, strike, maturité, vol, prix forward, delta, gamma','Prix spot, strike, vol, taux, PNL, delta, maturité','Prix forward, strike, vol, maturité, skew, smile, taux'],ans:0,exp:'Les 7 paramètres de Black-Scholes : S (spot), K (strike), T (maturité), σ (volatilité implicite), r (taux sans risque), q (taux de dividende), et le taux repo (r_repo pour tenir compte du financement). La vol implicite est le seul paramètre non directement observable.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Lot A = call 95 + call 105 vs Lot B = 2 calls à 100 : lequel choisir ? Pourquoi ?',opts:['Lot B — 2 calls ATM ont plus de valeur intrinsèque','Lot A — par convexité du prix des options, deux strikes différents valent plus que la moyenne','Équivalent — même coût total','Lot B — plus simple à gérer'],ans:1,exp:'Par la convexité du prix des options (Jensen\'s inequality), la valeur d\'un call est une fonction convexe du strike. Le prix moyen de call(95) + call(105) est supérieur à 2×call(100). C\'est le principe du butterfly : Lot A > Lot B.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Mesure de probabilité risque-neutre : quelles sont ses deux propriétés fondamentales ?',opts:['Équivalente à la probabilité historique + rend les prix espérés croissants','Équivalente à la probabilité historique + rend tout actif actualisé une martingale','Indépendante de la probabilité historique + minimise la variance','Égale à la probabilité forward + maximise l\'utilité'],ans:1,exp:'La mesure risque-neutre Q est : 1) Équivalente à la probabilité réelle P (mêmes événements nuls). 2) Sous Q, tout actif actualisé (divisé par le numéraire) est une martingale. Cela permet de pricer par simple calcul d\'espérance sous Q.'},
-  {type:'brain',ep:'Candidate Ép.2',q:'1 milliard€ maintenant (non investissable) ou 10 centimes à 10% de rendement journalier pendant 1 an ?',opts:['1 milliard€ — c\'est une somme colossale','10 centimes — 0,10 × 1,10^365 >> 1 milliard','Équivalent — les deux sont comparables','1 milliard€ — car 10 centimes même à 10%/j ne rattrape pas'],ans:1,exp:'0,10 × 1,10^365. En 20 jours, 10 centimes à 10%/j double (~0,20€ après ~7j, ~1€ après 22j, 100€ après 50j, 1M€ après 120j). À 365 jours, on dépasse largement 1 milliard. La capitalisation composée est exponentiellement puissante.'},
-  {type:'brain',ep:'Candidate Ép.2',q:'Tournoi de tennis à 100 participants, élimination directe. Combien de matchs pour désigner le gagnant ?',opts:['50 matchs','99 matchs','100 matchs','127 matchs'],ans:1,exp:'Chaque match élimine exactement 1 joueur. Pour passer de 100 joueurs à 1 gagnant, il faut éliminer 99 joueurs → 99 matchs. Raisonnement élégant : ne pas compter les rounds, juste compter les éliminés.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Delta d\'un call ATM (~0,5). Comment évolue le delta d\'un call OTM si la vol implicite augmente ?',opts:['Le delta baisse vers 0','Le delta monte vers 0,5','Le delta reste inchangé — il ne dépend pas de la vol','Le delta monte vers 1'],ans:1,exp:'Pour un call OTM, une hausse de vol augmente la probabilité d\'être ITM à maturité. Le delta (= probabilité risque-neutre d\'être ITM) augmente donc et se rapproche de 0,5. La vol "étale" la distribution et rapproche les options de leur valeur à la monnaie.'},
-  {type:'tech',ep:'Candidate Ép.2',q:'Comment structure-t-on une reverse convertible ?',opts:['Obligation + achat d\'un call sur l\'action','Obligation + vente d\'un put sur l\'action','Obligation + achat d\'un put sur l\'action','Action + vente d\'un call couvert'],ans:1,exp:'Une reverse convertible = obligation (qui paie le coupon élevé) + vente d\'un put (qui génère la prime permettant de payer ce coupon). Si l\'action baisse fortement, l\'investisseur reçoit des actions (le put se déclenche) au lieu de son capital. Produit risqué en marché baissier.'},
-  {type:'market',ep:'Candidate Ép.2',q:'Combien vaut un point de base sur 1 million€ ?',opts:['0,01€','1€','100€','10 000€'],ans:2,exp:'1 point de base = 0,01% = 0,0001. Sur 1 million€ : 1 000 000 × 0,0001 = 100€. En trading de taux, les P&L se calculent souvent en DV01 (Dollar Value of 1 basis point).'},
-  {type:'tech',ep:'TFG Ép.6',q:'Modélisation des dividendes : fixe vs proportionnel. Quel impact sur le prix d\'un autocall ?',opts:['Aucun impact — les deux méthodes donnent le même prix','Dividende fixe = Phoenix ; dividende proportionnel = Athena ; le choix impacte le prix en fonction de la trajectoire du sous-jacent','Les dividendes n\'entrent pas dans le pricing d\'un autocall','Dividende fixe rend l\'autocall plus cher car les flux sont certains'],ans:1,exp:'Dividende discret fixe (ex: 5€ quelle que soit la valeur) → modèle Phoenix. Dividende proportionnel (ex: 3% de la valeur) → modèle Athena. L\'impact sur le pricing est significatif en Monte Carlo : avec un dividende fixe, si l\'action s\'effondre, le dividende relatif explose, distordant la trajectoire.'},
-  {type:'market',ep:'TFG Ép.6',q:'Événement le plus marquant de 2025 selon un candidat finance de marché ?',opts:['La faillite de plusieurs banques régionales américaines','Les tarifs douaniers de Trump et leur impact sur les marchés mondiaux','La crise de la dette souveraine européenne','La bulle éclate sur les crypto-monnaies'],ans:1,exp:'En 2025, les annonces de Donald Trump sur les tarifs douaniers (America First) ont créé une forte volatilité sur les marchés. L\'incertitude sur les échanges commerciaux US-Chine et US-Europe a pesé sur les indices mondiaux et alimenté la vol.'},
-  {type:'market',ep:'TFG Ép.6',q:'Président de la Fed, présidente de la BCE, ministre de l\'économie français en 2025 ?',opts:['Jerome Powell / Christine Lagarde / Bruno Le Maire','Kevin Warsh / Christine Lagarde / Éric Lombard','Jerome Powell / Isabel Schnabel / Éric Lombard','Jerome Powell / Christine Lagarde / Éric Lombard'],ans:3,exp:'En 2025 : Jerome Powell reste à la Fed (Kevin Warsh désigné successeur), Christine Lagarde préside la BCE, Éric Lombard est ministre de l\'économie français (remplaçant Bruno Le Maire).'},
-  {type:'market',ep:'TFG Ép.2',q:'Politique monétaire expansionniste : définition et impact sur inflation et croissance ?',opts:['Hausse des taux → baisse de l\'inflation → ralentissement croissance','Baisse des taux et/ou injection de liquidités → stimulation de la croissance → risque de hausse de l\'inflation','Réduction du bilan de la banque centrale → désinflation → croissance stable','Augmentation des réserves obligatoires → contraction du crédit → désinflation'],ans:1,exp:'Politique monétaire expansionniste = baisser les taux directeurs + achats d\'actifs (QE). Cela facilite le crédit, stimule la consommation et l\'investissement → croissance +. Mais crée un risque d\'inflation si l\'économie tourne trop vite.'},
-  {type:'market',ep:'TFG Ép.5',q:'Trump veut que la Fed baisse les taux. Si la Fed les MONTE de façon surprenante, que fait la parité EUR/USD ?',opts:['L\'EUR/USD monte — l\'euro se renforce','L\'EUR/USD baisse — le dollar se renforce car les taux américains deviennent plus attractifs','Pas d\'impact sur le change — les taux n\'affectent que les obligations','L\'EUR/USD monte car les marchés actions américains montent'],ans:1,exp:'Une hausse surprise des taux américains rend les actifs en dollars plus attractifs (rendements plus élevés). Les capitaux affluentt vers le dollar → le dollar se renforce → EUR/USD baisse (il faut moins de dollars pour acheter 1 euro).'},
-  {type:'market',ep:'TFG Ép.5',q:'La BCE a-t-elle eu des taux négatifs ? Dans quel contexte ?',opts:['Non, c\'est interdit par les statuts de la BCE','Oui, entre 2014 et 2022 pour stimuler l\'économie et lutter contre la déflation','Oui, uniquement pendant le Covid en 2020','Non, mais certains pays européens l\'ont fait individuellement'],ans:1,exp:'La BCE a pratiqué des taux négatifs sur sa facilité de dépôt de -0,1% (2014) jusqu\'à -0,5% (2019), puis remontée en 2022. L\'objectif : forcer les banques à prêter plutôt que déposer à la BCE, pour stimuler l\'économie post-crise des dettes souveraines.'},
-  {type:'market',ep:'TFG Ép.3',q:'Qu\'est-ce qui s\'est passé lors de la crise des subprimes 2008 ?',opts:['Les banques ont fait faillite à cause de mauvais investissements en Asie','Des prêts immobiliers accordés à des emprunteurs peu solvables ont été titrisés et revendus. Quand l\'immobilier a chuté, les collatéraux ont perdu leur valeur et tout le système s\'est effondré','La Réserve fédérale a mal géré les taux directeurs, créant une bulle obligataire','Les hedge funds ont massivement shortés les banques, créant une panique auto-réalisatrice'],ans:1,exp:'Les subprimes = prêts hypothécaires accordés à des emprunteurs à risque. Ces prêts ont été titrisés (CDO, MBS) et revendus dans le monde entier. Quand le marché immobilier US a chuté, les collatéraux ont perdu leur valeur, créant des pertes en cascade et la faillite de Lehman Brothers.'},
-  {type:'tech',ep:'TFG Ép.6',q:'C\'est quoi le skew de vol en equity ? De quel côté est-il ?',opts:['Les calls coûtent plus cher que les puts du même strike OTM','Les puts OTM coûtent plus cher que les calls OTM, car les investisseurs achètent des puts pour se protéger','Le skew est symétrique en equity','Le skew varie selon les secteurs, sans direction dominante'],ans:1,exp:'En equity, le skew est baissier : la vol implicite est plus élevée pour les puts OTM que pour les calls OTM. Raison : les investisseurs achètent massivement des puts pour se couvrir contre une baisse. Cette demande asymétrique crée le skew.'},
-  {type:'market',ep:'TFG Ép.2',q:'En 2025, quel est le top 3 des capitalisations mondiales ?',opts:['Apple, Microsoft, Saudi Aramco','Nvidia, Microsoft, Apple','Nvidia, Amazon, Tesla','Apple, Nvidia, Berkshire Hathaway'],ans:1,exp:'En 2025, Nvidia a pris la tête des capitalisations mondiales grâce à l\'explosion de la demande en GPU pour l\'IA générativeative. Le top 3 mondial est Nvidia, Microsoft, Apple, avec des capitalisations autour de 3 000-4 000 Mds$.'},
-  {type:'brain',ep:'TFG Ép.6',q:'Somme des chiffres de ton numéro de téléphone. Puis : 47 × 53 en calcul mental (identité remarquable) ?',opts:['2491 — (50-3)(50+3) = 2500-9','2401 — 7² × 49','2491 — (47+53)/2 × 100','2209 — 47² + 53'],ans:0,exp:'47 × 53 = (50-3)(50+3) = 50² - 3² = 2500 - 9 = 2491. L\'identité remarquable (a-b)(a+b) = a²-b² est la technique de calcul mental la plus efficace pour les produits symétriques autour d\'un nombre rond.'},
-  {type:'market',ep:'TFG Ép.3',q:'Le Brent est à 66$. Si tu veux être long Brent, quel produit dérivé achètes-tu ? C\'est quel contrat de référence pour le prix du baril ?',opts:['Un futur sur le WTI (West Texas Intermediate) — contrat de référence US','Un futur sur le Brent — contrat de référence = ICE Brent 1er mois (nearby)','Un call OTM sur le Brent spot','Un swap de pétrole gré à gré'],ans:1,exp:'Pour être long pétrole, on achète un futur. La référence pour le prix du baril affiché est le contrat futur 1er mois (nearby) du Brent sur l\'ICE (Intercontinental Exchange) à Londres. Le WTI est la référence américaine. Brent ≈ WTI + 1-2$ en conditions normales.'},
-  {type:'market',ep:'TFG Ép.1',q:'Taux US 10 ans et OAT 10 ans en 2025 (ordre de grandeur) ?',opts:['US ~1%, OAT ~0,5%','US ~4,5%, OAT ~3,5%','US ~7%, OAT ~5%','US ~4,5%, OAT ~1%'],ans:1,exp:'En 2025, les taux longs restent élevés après le cycle de hausse de la Fed. US 10 ans ~4,2-4,7%, OAT 10 ans ~3,2-3,8%. L\'écart (spread) reflète la prime de risque France vs USA.'},
-  {type:'market',ep:'TFG Ép.1',q:'Valorisation d\'Apple en 2025 (ordre de grandeur) ?',opts:['~500 Mds$','~1 000 Mds$','~3 000 Mds$','~10 000 Mds$'],ans:2,exp:'Apple oscille autour de 3 000 Mds$ de capitalisation boursière en 2025, avec Nvidia qui lui dispute la première place mondiale. À titre de repère : les GAFAM (Google, Apple, Facebook/Meta, Amazon, Microsoft) représentent ensemble plus de 10 000 Mds$.'},
-  {type:'market',ep:'TFG Ép.2',q:'Capitalisation boursière d\'Apple en 2025 (ordre de grandeur) ?',opts:['~500 Mds$','~1 500 Mds$','~3 000 Mds$','~8 000 Mds$'],ans:2,exp:'Apple vaut environ 3 000 Mds$ en 2025. Un ordre de grandeur utile : le PIB de la France est ~2 800 Mds€, la capitalisation d\'Apple est donc supérieure au PIB de la France entière.'},
-  {type:'fit',ep:'TFG Ép.1',q:'Quelles sont les missions de la Fed comparées à celles de la BCE ?',opts:['Les deux ont uniquement pour mission de maintenir la stabilité des prix','La Fed a un double mandat : stabilité des prix + plein emploi. La BCE cible uniquement l\'inflation (~2%)','La BCE a un double mandat, la Fed cible uniquement l\'inflation','La Fed cible la croissance du PIB, la BCE l\'emploi'],ans:1,exp:'Double mandat de la Fed (1977 Full Employment and Balanced Growth Act) : prix stables + emploi maximum. La BCE (traité de Maastricht) a un mandat unique : la stabilité des prix. C\'est une différence fondamentale en politique monétaire comparée.'},
-  {type:'fit',ep:'TFG Ép.5',q:'Pourquoi aller en finance de marché plutôt qu\'en finance d\'entreprise ?',opts:['Pour des salaires plus élevés uniquement','Pour combiner rigueur mathématique, vitesse de décision et contact quotidien avec les marchés réels','Pour travailler moins d\'heures','Pour avoir plus de stabilité de carrière'],ans:1,exp:'La finance de marché attire pour sa composante quantitative (maths, modèles), la dynamique des marchés (réaction aux événements en temps réel), et l\'aspect compétitif du PNL. C\'est une réponse attendue en entretien : montrer que c\'est un choix réfléchi, pas juste salarial.'},
-  {type:'fit',ep:'TFG Ép.6',q:'C\'est quoi PRIIPs ? Et MiFID ?',opts:['PRIIPs = Packaged Retail and Insurance-based Investment Products (réglementation EU sur la transparence) ; MiFID = Markets in Financial Instruments Directive','PRIIPs = Private Real estate Investment In Paris ; MiFID = Market Information for Financial Dealers','PRIIPs = Produits Réglementés d\'Investissement et d\'Instruments Protégés ; MiFID = Mécanisme d\'Investissement Financier Intégré pour Dérivés','PRIIPs = Products Range for Institutional Investors Policies ; MiFID = Markets in Fixed Income Derivatives'],ans:0,exp:'PRIIPs : réglementation UE imposant un document standardisé (KID) pour les produits d\'investissement packagés destinés aux particuliers (inclut les produits structurés). MiFID II : directive encadrant les marchés d\'instruments financiers, la transparence et la protection des investisseurs. Indispensable à connaître si c\'est sur son CV.'},
-  {type:'fit',ep:'TFG Ép.2',q:'Tu as 6 stages différents sur ton CV. Que pense le recruteur ?',opts:['C\'est excellent — plus d\'expériences c\'est toujours mieux','Le jury peut penser que tu manques de focus et que ton CV est surchargé — mieux vaut sélectionner les expériences les plus différenciantes','C\'est un signal fort de curiosité intellectuelle','Le recruteur ne regarde pas le nombre de stages'],ans:1,exp:'Un CV trop chargé (police 8, 10 expériences) perd en lisibilité et en impact. Les recruteurs passent en moyenne 30 secondes sur un CV. Mieux vaut 3-4 expériences bien expliquées et cohérentes avec ton projet professionnel.'},
-  {type:'market',ep:'TFG Ép.2',q:'EUR/USD en 2025 (ordre de grandeur) ?',opts:['0,85 (parité en faveur du dollar)','1,08 (légère appréciation de l\'euro)','1,20 (forte appréciation de l\'euro)','1,40 (euro très fort)'],ans:1,exp:'En 2025, le cours EUR/USD fluctue autour de 1,05-1,15 selon les annonces de la Fed et les tensions commerciales. La valeur de 1,08 est un bon ordre de grandeur. Attention : en 2022, on a frôlé la parité (1,0) lors de la crise énergétique.'},
-  {type:'market',ep:'TFG Ép.2',q:'Différence entre déflation et désinflation ?',opts:['Déflation = inflation qui ralentit ; désinflation = inflation négative','Désinflation = inflation qui ralentit ; déflation = baisse des prix (inflation négative)','Ce sont deux termes synonymes','Déflation = baisse des actifs financiers ; désinflation = baisse des prix à la consommation'],ans:1,exp:'Désinflation : l\'inflation reste positive mais son taux diminue (ex: passer de 6% à 2%). Déflation : les prix BAISSENT (inflation < 0%). La déflation est bien plus dangereuse car elle peut engendrer une spirale récessive (les agents retardent leurs achats).'},
-  {type:'tech',ep:'TFG Ép.5',q:'Formule du prix forward. Combien coûte entrer dans un contrat forward ?',opts:['La valeur actualisée du sous-jacent','Le différentiel de taux entre les deux devises','0€ à l\'initiation — le forward est un accord, pas un achat','La prime de risque de contrepartie'],ans:2,exp:'Un forward est un accord bilatéral sans échange de prime initial. Son prix (F = S × e^(r-q)T) fixe le niveau d\'échange futur. À l\'initiation, sa valeur est zéro par construction (la banque fixe le prix pour que ce soit équitable). C\'est différent d\'une option qui coûte une prime.'},
-  {type:'market',ep:'TFG Ép.6',q:'C\'est quoi le VSTOXX (équivalent européen du VIX) ?',opts:['L\'indice de vol implicite du CAC 40','L\'indice de vol implicite de l\'EuroStoxx 50 à 30 jours','L\'indice de corrélation des marchés européens','Un indice de dispersion des actions européennes'],ans:1,exp:'Le VSTOXX est l\'analogue européen du VIX américain. Il mesure la vol implicite à 30 jours de l\'EuroStoxx 50, calculé à partir du smile d\'options sur l\'indice. Un VSTOXX élevé (>25) signale une forte incertitude sur les marchés européens.'},
-  {type:'market',ep:'TFG Ép.3',q:'VIX : valeur en période stable vs en période de stress ?',opts:['Stable : ~30-40 ; Stress : >60','Stable : ~12-18 ; Stress : >30 (pic Covid : >80)','Stable : ~5-10 ; Stress : ~20','Stable : ~20-25 ; Stress : >50'],ans:1,exp:'VIX normal : 12-18 (marché calme). VIX élevé : 25-40 (tension). VIX extrême : >50 (crise, ex: Covid mars 2020 : 82, crise 2008 : 80). Le VIX est souvent appelé "indice de la peur".'},
-  {type:'market',ep:'TFG Ép.2',q:'Taux directeurs américains (Fed Funds Rate) en 2025 ?',opts:['~0-0,25%','~2-2,5%','~4-5%','~7-8%'],ans:2,exp:'Après le cycle de hausse 2022-2023 (0% → 5,5%), la Fed a commencé à baisser prudemment en 2024. En 2025, les taux sont autour de 4-5%, selon l\'évolution de l\'inflation et du marché de l\'emploi.'},
-  {type:'tech',ep:'TFG Ép.2',q:'Qu\'est-ce que la volatilité implicite ? Ordre de grandeur sur le S&P 500 en période normale ?',opts:['Vol calculée sur les données historiques des 30 derniers jours ; ~5%','Vol extraite du prix de marché des options ; ~15-20% en période normale','Vol attendue par les analystes sell-side ; ~25-30%','Vol théorique calculée par Black-Scholes ; ~10%'],ans:1,exp:'La vol implicite est extraite en inversant la formule de Black-Scholes : connaissant le prix de l\'option et tous les autres paramètres, on résout pour σ. En période normale sur le S&P 500, elle est autour de 15-20% (VIX ~15-20). En crise, elle peut atteindre 80%.'},
-  {type:'tech',ep:'TFG Ép.6',q:'Une action bouge de 1% par jour. Quelle est sa volatilité annualisée ?',opts:['1%','8%','16%','36%'],ans:2,exp:'Vol journalière = 1%. Vol annualisée = 1% × √252 ≈ 15,87% ≈ 16%. La règle d\'annualisation utilise √252 car il y a ~252 jours de trading par an. À retenir : une action "normale" a une vol de 20-30%, soit ~1,3-1,9%/jour.'},
-  {type:'brain',ep:'TFG Ép.6',q:'Somme des chiffres de ton numéro de téléphone (= 45). Puis : 55 × 45 en mental ?',opts:['2475 — (50+5)(50-5) = 2500-25','2500 — 50²','2025 — 45²','2970 — 55 × 54'],ans:0,exp:'55 × 45 = (50+5)(50-5) = 50² - 5² = 2500 - 25 = 2475. Identité remarquable (a+b)(a-b) = a²-b². En entretien finance, on demande souvent ces calculs mentaux pour évaluer la rapidité et la rigueur arithmétique.'},
-  {type:'market',ep:'TFG Ép.5',q:'Qu\'a fait la BCE face au Covid en 2020 ?',opts:['Elle a monté ses taux directeurs pour lutter contre l\'inflation','Elle a lancé le PEPP (Pandemic Emergency Purchase Programme) et maintenu des taux négatifs','Elle a réduit ses réserves obligatoires','Elle a coordonné avec la Fed pour baisser les taux simultanément'],ans:1,exp:'En mars 2020, la BCE a lancé le PEPP doté de 750 Mds€ (porté ensuite à 1 850 Mds€) pour acheter des obligations et soutenir la liquidité. Les taux directeurs sont restés négatifs (-0,5% sur la facilité de dépôt).'},
-  {type:'market',ep:'TFG Ép.3',q:'Capitalisation boursière de Nvidia en 2025 (ordre de grandeur) ?',opts:['~500 Mds$','~1 500 Mds$','~3 000 Mds$','~10 000 Mds$'],ans:2,exp:'Nvidia a franchi les 3 000 Mds$ de capitalisation en 2024 grâce à la demande explosive pour ses GPU H100 et A100 utilisés dans les data centers pour l\'IA. Elle rivalise avec Apple et Microsoft pour la première place mondiale.'},
-  {type:'market',ep:'TFG Ép.2',q:'PIB de la France (ordre de grandeur 2025) ?',opts:['~500 Mds€','~1 500 Mds€','~2 800 Mds€','~5 000 Mds€'],ans:2,exp:'Le PIB de la France est d\'environ 2 800 Mds€ en 2025, ce qui en fait la 7e économie mondiale et la 2e de la zone euro (derrière l\'Allemagne). Le niveau d\'endettement public est autour de 110% du PIB.'},
-];
+    <!-- TAB FORMULES -->
+    <div id="tab-formules" class="tab-content">
+        <div class="formula-area">
+            <div class="formula-grid">
 
-let filtered = [...ALL_QUESTIONS];
-let currentFilter = 'all';
-let quizQuestions = [];
-let current = 0;
-let score = 0;
-let answered = [];
-let selectedMode = 'all';
-let timerInterval = null;
-let seconds = 0;
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Options</span>
+                         Black-Scholes Call
+                    </h4>
+                    <code>C = S·N(d1) - K·e^(-rT)·N(d2)
+                    d1 = [ln(S/K) + (r + σ²/2)T] / σ√T
+                    d2 = d1 - σ√T</code>
+                    <p>S = spot, K = strike, r = taux sans risque, σ = vol implicite, T = maturité, N() = loi normale cumulée</p>
+                </div>
 
-function setFilter(type, btn) {
-  currentFilter = type;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (type === 'all') filtered = [...ALL_QUESTIONS];
-  else filtered = ALL_QUESTIONS.filter(q => q.type === type);
-  document.getElementById('start-screen').style.display = 'block';
-  document.getElementById('quiz-screen').style.display = 'none';
-  document.getElementById('result-screen').style.display = 'none';
-}
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Options</span>
+                         Approximation ATM
+                    </h4>
+                    <code>Call ATM ≈ 0.4 × S × σ × √T
+                    Straddle ATM ≈ 0.8 × S × σ × √T</code>
+                    <p>Valable uniquement ATM (S ≈ K). Incontournable en entretien pour estimer rapidement un prix d'option.</p>
+                </div>
 
-function selectMode(mode, el) {
-  selectedMode = mode;
-  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-}
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Options</span>
+                         Parité Put-Call
+                    </h4>
+                    <code>C - P = S·e^(-qT) - K·e^(-rT)
+                    ou simplement :
+                    C - P = F - K·e^(-rT)</code>
+                    <p>q = taux de dividende. Si C-P ≠ F-Ke^(-rT), il existe un arbitrage.</p>
+                </div>
 
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Greeks</span>
+                         Greeks principaux
+                    </h4>
+                    <code>Delta (Δ) = ∂C/∂S ≈ N(d1)
+                    Gamma (Γ) = ∂²C/∂S² = N'(d1)/Sσ√T
+                    Vega (ν) = ∂C/∂σ = S√T·N'(d1)
+                    Theta (Θ) = ∂C/∂t
+                    Rho (ρ) = ∂C/∂r</code>
+                    <p>Delta : entre 0 et 1 pour un call. Gamma maximal ATM. Vega identique call et put même strike.</p>
+                </div>
 
-function startQuiz() {
-  let pool = [...filtered];
-  shuffle(pool);
-  if (selectedMode === 'random30') pool = pool.slice(0, Math.min(30, pool.length));
-  else if (selectedMode === 'random10') pool = pool.slice(0, Math.min(10, pool.length));
-  quizQuestions = pool;
-  answered = new Array(quizQuestions.length).fill(null);
-  current = 0;
-  score = 0;
-  seconds = 0;
-  document.getElementById('start-screen').style.display = 'none';
-  document.getElementById('quiz-screen').style.display = 'block';
-  document.getElementById('result-screen').style.display = 'none';
-  startTimer();
-  renderQuestion();
-}
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Forward</span>
+                         Prix Forward
+                    </h4>
+                    <code>F = S · e^((r - q) · T)
+                    Avec dividendes discrets :
+                    F = (S - PV(div)) · e^(r·T)</code>
+                    <p>r = taux sans risque, q = taux de dividende continu. Le Vega d'un forward est toujours nul.</p>
+                </div>
 
-function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    seconds++;
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    const t = document.getElementById('timer-display');
-    if (t) t.textContent = m + ':' + s;
-  }, 1000);
-}
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Taux</span>
+                         Taux Forward
+                    </h4>
+                    <code>(1 + r2)^T2 = (1 + r1)^T1 × (1 + f)^(T2-T1)
+                    En continu :
+                    f = (r2·T2 - r1·T1) / (T2 - T1)</code>
+                    <p>f = taux forward entre T1 et T2. Si la courbe est croissante, les taux forwards sont supérieurs aux taux spots.</p>
+                </div>
 
-const badgeMap = {tech:'badge-tech',market:'badge-market',brain:'badge-brain',fit:'badge-fit',coding:'badge-coding'};
-const labelMap = {tech:'Technique',market:'Marché',brain:'Brainteaser',fit:'Fit',coding:'Coding'};
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Vol</span>
+                         Annualisation de la volatilité
+                    </h4>
+                    <code>σ_annuelle = σ_journalière × √252
+                    σ_journalière = σ_annuelle / √252
 
-function renderQuestion() {
-  const q = quizQuestions[current];
-  const total = quizQuestions.length;
-  const pct = ((current) / total * 100).toFixed(1);
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('q-counter').textContent = 'Question ' + (current + 1) + ' / ' + total;
-  document.getElementById('score-live').innerHTML = 'Score : <strong>' + score + '</strong> | <span id="timer-display">00:00</span>';
+                    Règle : vol mensuelle × √12 = vol annuelle</code>
+                    <p>252 = nombre de jours de trading par an. Une action avec 1%/jour de vol a ~16% de vol annuelle.</p>
+                </div>
 
-  const isAnswered = answered[current] !== null;
-  const userAns = answered[current];
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Portfolio</span>
+                         Variance d'un portefeuille 2 actifs
+                    </h4>
+                    <code>σ²_p = w1²·σ1² + w2²·σ2² + 2·w1·w2·ρ·σ1·σ2
+                    ρ = Cov(X,Y) / (σX · σY)</code>
+                    <p>ρ = corrélation entre les deux actifs. Si ρ = -1, diversification maximale possible.</p>
+                </div>
 
-  let optHtml = q.opts.map((o, i) => {
-    let cls = 'opt-btn';
-    if (isAnswered) {
-      if (i === q.ans) cls += ' correct';
-      else if (i === userAns && i !== q.ans) cls += ' wrong';
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Risk</span>
+                         Value at Risk (VaR)
+                    </h4>
+                    <code>VaR paramétrique 99% :
+                    VaR = μ - 2.33·σ·√T·Notionnel
+
+                    VaR 95% : z = 1.645
+                    VaR 99% : z = 2.326</code>
+                    <p>La VaR 99% sur 1 jour = perte maximale dans 99% des cas sur 1 jour. Elle ne dit pas ce qui se passe dans le 1% restant.</p>
+                </div>
+
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Oblig.</span>
+                         Duration et sensibilité
+                    </h4>
+                    <code>Duration Macaulay = Σ [t · CF_t / (1+r)^t] / Prix
+                    Duration Modifiée = D_Mac / (1 + r)
+                    ΔP/P ≈ -D_mod × Δr</code>
+                    <p>Duration d'un ZC = maturité. Pour une obligation, D &lt; maturité. Convexité = dérivée seconde du prix.</p>
+                </div>
+
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Fama-French</span>
+                         Modèle 3 facteurs
+                    </h4>
+                    <code>E(Ri) - Rf = βi·(Rm-Rf) + si·SMB + hi·HML
+
+                    SMB = Small Minus Big (taille)
+                    HML = High Minus Low (valeur/B-to-M)</code>
+                    <p>Extension du CAPM. SMB capte la prime small cap, HML la prime value. Fama-French 5 facteurs ajoute RMW et CMA.</p>
+                </div>
+
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Oblig.</span>
+                         Calcul du taux forward (simplifié)
+                    </h4>
+                    <code>Prix ZC : P = 100 / (1 + r)^T
+                    Taux ZC depuis prix : r = (100/P)^(1/T) - 1
+                    Taux forward : f(1,2) = (1+r2)²/(1+r1) - 1</code>
+                    <p>Un ZC ne verse aucun coupon intermédiaire — tout le flux est à maturité. Sa duration = sa maturité.</p>
+                </div>
+
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Options</span>
+                         Payoffs standards
+                    </h4>
+                    <code>Long Call : max(S_T - K, 0) - Prime
+                    Long Put  : max(K - S_T, 0) - Prime
+                    Straddle  : max(|S_T - K|, 0) - 2×Prime
+                    Forward   : S_T - F (pas de prime)</code>
+                    <p>Le forward ne coûte rien à l'initiation (valeur = 0). L'option a un payoff asymétrique, le forward est linéaire.</p>
+                </div>
+
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Sharpe</span>
+                         Ratios de performance
+                    </h4>
+                    <code>Sharpe = (Rp - Rf) / σp
+                    Sortino = (Rp - Rf) / σ_downside
+                    Information = (Rp - Rb) / Tracking Error</code>
+                    <p>Sharpe : rendement excédentaire par unité de risque total. Sortino pénalise uniquement la vol à la baisse.</p>
+                </div>
+
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Calcul</span>
+                         Identités remarquables
+                    </h4>
+                    <code>(a+b)(a-b) = a² - b²
+                    Ex: 47×53 = (50-3)(50+3) = 2500-9 = 2491
+                    Ex: 55×45 = (50+5)(50-5) = 2500-25 = 2475
+                    (a+b)² = a² + 2ab + b²</code>
+                    <p>Indispensable pour les calculs mentaux en entretien. Toujours chercher un nombre rond au centre.</p>
+                </div>
+
+                <div class="formula-card">
+                    <h4>
+                        <span class="tag">Var Swap</span>
+                         Payoff Variance Swap
+                    </h4>
+                    <code>Payoff = N × (σ²_réalisée - K²_var)
+                    σ réalisée = √(252/n × Σ ln(Si/Si-1)²)
+                    Prix call ATM ratio maturité :
+                    Ratio = √(T1/T2)</code>
+                    <p>N = notionnel en variance. En equity, corrélation spot-vol négative → long var swap = short delta.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const ALL_QUESTIONS = [
+    {
+        type: 'brain',
+        ep: 'TFG Ép.1',
+        q: 'Combien vaut √π ?',
+        opts: ['1,00', '1,41', '1,77', '3,14'],
+        ans: 2,
+        exp: '√π ≈ 1,7725. À ne pas confondre avec √2 ≈ 1,41 ou π ≈ 3,14.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.1',
+        q: 'Quelle est la différence entre le mandat de la Fed et celui de la BCE ?',
+        opts: ['La Fed cible uniquement l\'inflation à 2%, la BCE maximise l\'emploi', 'La Fed a un double mandat (inflation + emploi), la BCE cible uniquement l\'inflation à ~2%', 'Les deux ont exactement le même mandat', 'La Fed cible la croissance du PIB, la BCE l\'emploi'],
+        ans: 1,
+        exp: 'La Fed a un double mandat : stabilité des prix ET emploi maximum. La BCE a un mandat unique : maintenir l\'inflation proche mais en dessous de 2%.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.1',
+        q: 'D\'où vient l\'objectif d\'inflation à 2% de la BCE ? Pourquoi une inflation à 0% serait-elle problématique ?',
+        opts: ['0% = pas d\'inflation donc idéal pour les ménages', '0% augmente le risque de déflation et paralyse l\'investissement', '0% est recommandé par le FMI', '0% favorise la compétitivité des exportations'],
+        ans: 1,
+        exp: 'Une inflation à 0% expose à la déflation : les agents retardent leurs achats en anticipant des baisses de prix, ce qui contracte l\'économie. Le Japon en a souffert pendant des décennies.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.1',
+        q: 'L\'inflation, qui est-ce qu\'elle impacte le plus ?',
+        opts: ['Les riches, car ils détiennent plus d\'actifs', 'Les pauvres, car leur pouvoir d\'achat est le plus érodé', 'Elle impacte tout le monde de façon identique', 'Les entreprises uniquement'],
+        ans: 1,
+        exp: 'L\'inflation érode principalement le pouvoir d\'achat des ménages à faibles revenus. Les riches ont des actifs réels (immobilier, actions) qui se revalorisent avec l\'inflation.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.1',
+        q: 'Vol à 50%. Prix approximatif d\'un straddle de maturité 1 jour sur une action à 100€ ?',
+        opts: ['0,4€', '2,0€', '4,0€', '8,0€'],
+        ans: 1,
+        exp: 'Prix straddle ≈ 2 × 0,4 × S × σ × √T = 2 × 0,4 × 100 × 0,5 × √(1/252) ≈ 2€. À 20% de vol, on obtient ~1€.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.1',
+        q: 'Action qui bouge de 1% par jour pendant 1 an : volatilité réalisée annualisée ?',
+        opts: ['1%', '8%', '16%', '52%'],
+        ans: 2,
+        exp: 'Vol annualisée = vol journalière × √252 = 1% × √252 ≈ 16%. C\'est la règle d\'annualisation standard en finance.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.1',
+        q: 'Qu\'est-ce qu\'un Var Swap ? Quelle est la corrélation spot-vol en equity ?',
+        opts: ['Un swap qui échange vol réalisée contre vol implicite ; corrélation positive', 'Un swap qui échange variance réalisée contre variance fixe ; corrélation négative', 'Un swap de taux d\'intérêt variable ; corrélation nulle', 'Un contrat forward sur indice de volatilité ; corrélation positive'],
+        ans: 1,
+        exp: 'Un Var Swap échange la variance réalisée contre une variance fixe (strike). En equity, corrélation spot-vol négative : quand le marché baisse, la vol implicite monte.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.1',
+        q: 'Hausse de volatilité : quel est l\'impact sur le prix d\'un call ?',
+        opts: ['Le prix baisse car l\'option est moins précieuse', 'Le prix augmente car les chances d\'être ITM augmentent', 'Aucun impact — la vol n\'est pas un paramètre de Black-Scholes', 'Le prix augmente uniquement pour les options OTM'],
+        ans: 1,
+        exp: 'Une hausse de vol augmente le prix de TOUTES les options (call et put), car le payoff d\'une option est asymétrique.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.1',
+        q: 'Futur pétrole à 80$, spot à 78$, taux nuls, pas de coût de stockage : y a-t-il une opportunité d\'arbitrage ?',
+        opts: ['Non, le futur est toujours correctement pricé', 'Oui : acheter le spot à 78$, vendre le futur à 80$ et encaisser 2$ à maturité', 'Oui : vendre le spot et acheter le futur', 'Impossible sans connaître la date de maturité'],
+        ans: 1,
+        exp: 'Prix forward théorique = spot = 78$. Or le futur trade à 80$. On achète le spot (78$), vend le futur (80$) → gain garanti de 2$. C\'est un arbitrage cash-and-carry.'
+    },
+    {
+        type: 'brain',
+        ep: 'TFG Ép.1',
+        q: 'Tiroir à chaussettes : 2 jaunes, 2 rouges, 2 violettes, 3 noires. Combien en tirer au minimum pour avoir 2 de la même couleur ?',
+        opts: ['2', '3', '5', '9'],
+        ans: 2,
+        exp: 'Dans le pire cas, on tire 1 de chaque couleur (4 couleurs différentes). Au 5e tirage, on DOIT avoir un doublon. Réponse : 5.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.1',
+        q: 'Call américain vs call européen : lequel est le plus cher ? Que se passe-t-il sur le call le jour du versement d\'un dividende ?',
+        opts: ['Européen plus cher ; l\'option monte avec le dividende', 'Américain plus cher ; le call perd de la valeur quand le dividende est détaché', 'Ils ont toujours le même prix ; aucun impact', 'Américain plus cher ; l\'option ne bouge pas'],
+        ans: 1,
+        exp: 'Le call américain vaut au moins autant que l\'européen. Le dividende fait baisser le prix de l\'action, donc le call baisse.'
+    },
+    {
+        type: 'brain',
+        ep: 'TFG Ép.1',
+        q: 'Deux boîtes, l\'une contient le double de l\'autre. Tu ouvres la première : 100 000€. Tu gardes ou tu changes ?',
+        opts: ['Tu gardes — 50% de gagner ou perdre', 'Tu changes — l\'espérance de l\'autre boîte est de 125 000€', 'Indifférent — l\'espérance est identique', 'Tu changes uniquement si tu es risque lover'],
+        ans: 1,
+        exp: 'Espérance si tu changes : 0,5 × 50 000 + 0,5 × 200 000 = 125 000€ > 100 000€. Il faut changer !'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.2',
+        q: 'Taux directeur de la BCE (ordre de grandeur 2025) ?',
+        opts: ['0%', '2%', '4%', '6%'],
+        ans: 1,
+        exp: 'La BCE a progressivement baissé ses taux en 2024-2025 pour les ramener autour de 2%, après le pic à 4%.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.2',
+        q: 'Différence entre déflation et désinflation ?',
+        opts: ['C\'est la même chose', 'Déflation = baisse des prix ; désinflation = ralentissement de la hausse des prix', 'Désinflation = baisse des prix ; déflation = inflation nulle', 'Déflation = crise économique ; désinflation = récession'],
+        ans: 1,
+        exp: 'Déflation : les prix BAISSENT. Désinflation : l\'inflation reste positive mais ralentit. La déflation est dangereuse car elle crée une spirale récessive.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.2',
+        q: 'Tu veux une exposition à la volatilité : quel produit ?',
+        opts: ['Un call OTM sur l\'indice', 'Un straddle (achat call + put même strike)', 'Un forward sur le sous-jacent', 'Une position short sur le VIX'],
+        ans: 1,
+        exp: 'Un straddle (long call + long put même strike) est long vega et long gamma. Il gagne si le sous-jacent bouge fortement dans un sens ou dans l\'autre.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.2',
+        q: 'Ratio de prix entre un call ATM 1 an et un call ATM 3 mois (même vol, même spot) ?',
+        opts: ['1x — ils ont le même prix', '2x — le call 1 an vaut deux fois le call 3 mois', '4x — la maturité est quadruplée', '0,5x — le call court terme coûte plus cher'],
+        ans: 1,
+        exp: 'Prix ≈ 0,4 × S × σ × √T. Le ratio est √(1an)/√(3mois) = √4 = 2. Le call 1 an vaut 2x le call 3 mois.'
+    },
+    {
+        type: 'brain',
+        ep: 'TFG Ép.2',
+        q: 'Train 1 part à 10h à 100km/h, destination à 600km. Train 2 part à 11h à 125km/h. À quelle distance de l\'arrivée le train 2 dépasse-t-il le train 1 ?',
+        opts: ['50 km', '100 km', '200 km', '500 km'],
+        ans: 1,
+        exp: 'À 11h, le train 1 a 100km d\'avance. Le train 2 comble 25km/h. Il faut 4h pour rattraper, soit 500km parcourus. Distance restante = 600 - 500 = 100km de l\'arrivée.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.2',
+        q: 'Vega d\'un contrat forward ?',
+        opts: ['Positif — sensible à la vol comme une option', 'Négatif — le forward profite d\'une vol basse', 'Nul — le forward ne dépend pas de la volatilité', 'Dépend de la maturité'],
+        ans: 2,
+        exp: 'Forward = call - put (même strike). Le Vega du call et du put s\'annulent exactement. Formule : F = S×e^(r-q)T, pas de σ. Le Vega d\'un forward est zéro.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.3',
+        q: 'Pourquoi en 2020 les prix du pétrole dans les futures sont-ils passés en négatif ?',
+        opts: ['La demande a explosé suite au Covid', 'Les entrepôts étaient pleins, personne ne pouvait stocker — on payait pour se débarrasser du pétrole', 'Les sanctions russes ont effondré les prix', 'Le cartel OPEP a inondé volontairement le marché'],
+        ans: 1,
+        exp: 'En avril 2020, le WTI a touché -37$/baril. La demande s\'était effondrée, les capacités de stockage étaient saturées, et les détenteurs du contrat payaient pour éviter la livraison physique.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.3',
+        q: 'Pourquoi est-il important qu\'une banque centrale soit indépendante ?',
+        opts: ['Pour maximiser la croissance économique à court terme', 'Pour éviter que les décisions monétaires soient dictées par les impératifs électoraux des gouvernements', 'Pour contrôler la politique budgétaire', 'Pour fixer les taux d\'intérêt des prêts immobiliers'],
+        ans: 1,
+        exp: 'L\'indépendance protège contre les pressions politiques. Les gouvernements ont tendance à vouloir des taux bas avant les élections, au détriment de la lutte contre l\'inflation.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.3',
+        q: 'Taux 6 mois à 5% et taux 1 an à 5%. Le taux forward 6 mois dans 6 mois sera-t-il plus haut ou plus bas que 5% ?',
+        opts: ['Plus bas — la courbe est plate donc le forward est inférieur', 'Égal à 5% exactement — la courbe est plate', 'Plus haut — pour capitaliser sur la même valeur finale', 'Impossible à calculer'],
+        ans: 1,
+        exp: '(1+5%)^1 = (1+5%)^0,5 × (1+f)^0,5. Si les deux taux sont identiques, le taux forward est exactement 5%. Une courbe plate implique des taux forwards égaux aux taux spots.'
+    },
+    {
+        type: 'brain',
+        ep: 'TFG Ép.3',
+        q: 'Meilleur investissement : prêter son argent tous les jours à 5% annuel ou pour 6 mois à 5% annuel ?',
+        opts: ['6 mois — même résultat', 'Tous les jours — la capitalisation composée quotidienne génère légèrement plus', 'Indifférent — le taux est identique', '6 mois — le risque de réinvestissement est éliminé'],
+        ans: 1,
+        exp: 'Avec la capitalisation composée quotidienne, les intérêts sont réinvestis chaque jour. Sur 6 mois, le rendement effectif est légèrement supérieur à 5%/2.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.3',
+        q: 'Dans Black-Scholes, on utilise quelle volatilité ?',
+        opts: ['Vol historique uniquement', 'Vol implicite — extraite du prix de marché des options', 'Un mélange des deux selon la maturité', 'La vol forward calculée par GARCH'],
+        ans: 1,
+        exp: 'Black-Scholes utilise la vol implicite, extraite en inversant la formule. C\'est le seul paramètre non-observable directement — il résume l\'anticipation du marché.'
+    },
+    {
+        type: 'brain',
+        ep: 'TFG Ép.3',
+        q: 'Il est 15h00. À quelle heure exactement les aiguilles des heures et des minutes se superposent-elles ?',
+        opts: ['15h15 exactement', '15h16 et 22 secondes', '15h17 et 8 secondes', '15h20 exactement'],
+        ans: 1,
+        exp: 'L\'aiguille des heures avance à 0,5°/min, des minutes à 6°/min. À 15h, l\'heure est à 90°. On résout : 6t = 90 + 0,5t → t = 16 min 21,8 sec → 15h16 et 22 secondes.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.3',
+        q: 'Qu\'est-ce qu\'un zéro coupon ? Quelle est sa duration ?',
+        opts: ['Obligation sans intérêts ; duration = 0', 'Obligation versant un seul flux à maturité ; duration = maturité', 'Obligation à taux variable ; duration = 1 an', 'Obligation perpétuelle ; duration = infinie'],
+        ans: 1,
+        exp: 'Un zéro coupon ne verse aucun coupon intermédiaire. Tout le flux est à maturité. Sa duration de Macaulay est égale à sa maturité.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.3',
+        q: 'Nvidia vaut 100€, vol 20%, maturité 1 an. Prix approximatif d\'un call ATM ?',
+        opts: ['2€', '5€', '8€', '20€'],
+        ans: 2,
+        exp: 'Approximation call ATM : 0,4 × S × σ × √T = 0,4 × 100 × 0,20 × 1 = 8€. À retenir absolument en entretien.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.3',
+        q: 'Monte Carlo pour estimer π : quelle est l\'approche ?',
+        opts: ['Simuler des marchés financiers jusqu\'à convergence', 'Tirer des points aléatoires dans un carré et compter ceux dans le cercle inscrit', 'Intégrer numériquement la fonction de densité normale', 'Simuler des marches aléatoires sur une grille'],
+        ans: 1,
+        exp: 'On tire N points dans un carré [0,1]². On compte ceux à distance ≤1 de l\'origine. π ≈ 4 × (points dans le cercle / N). En pricing, Monte Carlo simule des trajectoires d\'actifs.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.5',
+        q: 'Un swap 50% SX5E + 50% CMS est-il un produit hybride ?',
+        opts: ['Oui — il mélange equity et taux', 'Non — c\'est un produit linéaire, pas hybride', 'Oui — tout produit avec deux sous-jacents est hybride', 'Non — car le CMS n\'est pas un indice equity'],
+        ans: 1,
+        exp: 'Un hybride implique une non-linéarité entre deux classes d\'actifs. Un swap de performance 50%/50% est linéaire — chaque desk peut le gérer séparément.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.5',
+        q: 'Qu\'est-ce qu\'un Credit Default Swap (CDS) ?',
+        opts: ['Un swap de taux d\'intérêt lié au crédit', 'Une assurance contre le risque de défaut : l\'acheteur paie des primes, le vendeur paye en cas de défaut', 'Un contrat forward sur des obligations', 'Un indice mesurant le risque de crédit du marché'],
+        ans: 1,
+        exp: 'Un CDS fonctionne comme une assurance. L\'acheteur paie des primes. En cas de défaut, le vendeur verse (1 - taux de recouvrement) × notionnel.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.5',
+        q: 'En equity, tu es long ou short delta sur un Var Swap ?',
+        opts: ['Long delta — tu veux que le marché monte', 'Short delta — quand le spot baisse, la vol monte, donc ta position Var Swap gagne', 'Neutre delta — les Var Swaps ont un delta nul', 'Long delta uniquement si le strike de variance est élevé'],
+        ans: 1,
+        exp: 'Tu reçois variance réalisée. En equity, corrélation spot-vol négative : quand le spot baisse, la vol monte → tu gagnes. Tu profites d\'une baisse → tu es short delta.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.5',
+        q: 'Qu\'est-ce qu\'un floor en taux d\'intérêt ? Pourquoi un client polonais voudrait vendre un floor à strike 0% en juin 2020 ?',
+        opts: ['Il anticipe une hausse des taux et veut collecter la prime', 'Il anticipe que les taux resteront positifs — le floor ne se déclenchera jamais — il encaisse la prime', 'Il veut se protéger contre une hausse de taux', 'Il veut créer une exposition au taux Euribor'],
+        ans: 1,
+        exp: 'Un floor à 0% : l\'acheteur reçoit si le taux passe sous 0%. Le vendeur pariait que les taux ne descendraient pas davantage, encaissant la prime gratuitement.'
+    },
+    {
+        type: 'coding',
+        ep: 'TFG Ép.5',
+        q: 'Suite de Fibonacci : comment l\'initialiser correctement en code ?',
+        opts: ['F(0)=1, F(1)=1, F(n)=F(n-1)+F(n-2)', 'F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)', 'F(0)=0, F(1)=0, F(n)=F(n-1)+F(n-2)', 'F(0)=1, F(1)=2, F(n)=F(n-1)+F(n-2)'],
+        ans: 1,
+        exp: 'La suite standard : 0, 1, 1, 2, 3, 5, 8, 13... Initialisation : F(0)=0, F(1)=1, puis F(n)=F(n-1)+F(n-2).'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.5',
+        q: 'Pourquoi les forwards existent encore malgré le risque de contrepartie plus élevé ?',
+        opts: ['Les forwards sont moins chers car sans marge', 'Les forwards offrent une flexibilité totale : sous-jacent, strike, maturité sur mesure', 'Les forwards ont un rendement supérieur', 'Les forwards sont réglementés différemment'],
+        ans: 1,
+        exp: 'Les futurs sont standardisés. Les forwards sont OTC : on choisit n\'importe quel notionnel, strike, maturité, sous-jacent. Parfait pour les couvertures sur mesure.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.5',
+        q: 'Impact de la volatilité sur le prix d\'un call : sens de la relation ?',
+        opts: ['Négatif : une vol plus haute rend le call moins précieux', 'Nul : la vol n\'impacte pas le prix', 'Positif : une vol plus haute augmente le prix du call', 'Dépend si le call est ITM ou OTM'],
+        ans: 2,
+        exp: 'Le Vega d\'un call est TOUJOURS positif. Plus la vol est élevée, plus le sous-jacent peut atteindre des niveaux éloignés du strike. Le payoff asymétrique bénéficie de cette dispersion.'
+    },
+    {
+        type: 'brain',
+        ep: 'TFG Ép.5',
+        q: 'Combien y a-t-il de fois le chiffre 9 entre 1 et 1000 ?',
+        opts: ['100', '200', '300', '999'],
+        ans: 2,
+        exp: 'Par position : unités (100 occurrences), dizaines (100), centaines (100). Total : 100 + 100 + 100 = 300.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.6',
+        q: 'Top 3 des valeurs du S&P 500 par capitalisation boursière en 2025 ?',
+        opts: ['Apple, Microsoft, Amazon', 'Nvidia, Microsoft, Apple', 'Apple, Alphabet, Meta', 'Microsoft, Nvidia, Tesla'],
+        ans: 1,
+        exp: 'En 2025, Nvidia a dépassé Microsoft et Apple grâce à la demande en GPU pour l\'IA. Le top 3 est : Nvidia (~3 000-4 000 Mds$), Microsoft, Apple.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.6',
+        q: 'C\'est quoi le VIX ? Quel est son équivalent européen ?',
+        opts: ['Indice de la peur : vol implicite 30j du S&P 500 ; équivalent européen = VSTOXX', 'Indice de corrélation ; équivalent = EUROSTOXX 50', 'Vol historique 30j du S&P 500 ; équivalent = VXN', 'Indice de vol du Nasdaq ; pas d\'équivalent européen'],
+        ans: 0,
+        exp: 'Le VIX mesure la vol implicite annualisée à 30 jours sur le S&P 500. Un VIX < 20 = calme, > 30 = stress. L\'équivalent européen est le VSTOXX (EuroStoxx 50).'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.6',
+        q: 'C\'est quoi une stratégie vol target ?',
+        opts: ['Une stratégie qui vend la vol quand elle est élevée', 'Une stratégie qui ajuste dynamiquement l\'allocation actif risqué/cash pour maintenir une volatilité cible du portefeuille', 'Une stratégie de trading sur options achetant la vol implicite', 'Un hedge fund spécialisé dans les produits de vol'],
+        ans: 1,
+        exp: 'Vol target : on définit une vol cible (ex: 10%). Si la vol réalisée dépasse 10%, on réduit l\'exposition à l\'actif risqué. Sinon, on augmente. Cela crée mécaniquement une force vendeuse en période de stress.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.6',
+        q: 'Qu\'est-ce qu\'un autocall ? Quelles sont ses composantes principales ?',
+        opts: ['Une obligation convertible', 'Un produit remboursé par anticipation si le sous-jacent franchit une barrière ; composantes : coupon conditionnel + PDI + barrière de remboursement', 'Un ETF à levier', 'Un produit de taux à coupon variable'],
+        ans: 1,
+        exp: 'Un autocall est remboursé automatiquement si le sous-jacent est au-dessus d\'une barrière à une date d\'observation. Composantes : barrière de remboursement, barrière de coupon, PDI.'
+    },
+    {
+        type: 'tech',
+        ep: 'TFG Ép.6',
+        q: 'Si la volatilité du sous-jacent augmente, le coupon d\'un Athena ou Phoenix augmente ou diminue ?',
+        opts: ['Diminue — plus de vol = plus de risque pour le structureur', 'Augmente — plus de vol = le structureur peut offrir un coupon plus élevé pour compenser le risque', 'Reste inchangé', 'Dépend du niveau de la barrière PDI'],
+        ans: 1,
+        exp: 'Quand la vol augmente, la valeur des options vendues implicitement (put down-and-in) augmente. Le structureur reçoit plus de prime, ce qui lui permet d\'offrir un coupon plus élevé.'
+    },
+    {
+        type: 'brain',
+        ep: 'TFG Ép.6',
+        q: 'Tu fais le 1er tour d\'un stade à 5 km/h. Pour avoir une moyenne de 10 km/h sur les 2 tours, à quelle allure dois-tu courir le 2e tour ?',
+        opts: ['15 km/h', '20 km/h', 'Infiniment vite — c\'est impossible', '10 km/h'],
+        ans: 2,
+        exp: 'Pour une moyenne de 10km/h sur 2 tours, le temps total doit être 2L/10. Or le 1er tour prend déjà 2L/10. Il ne reste plus de temps pour le 2e tour. C\'est mathématiquement impossible.'
+    },
+    {
+        type: 'market',
+        ep: 'The Final',
+        q: 'Prix d\'1 kg d\'or en 2025 (ordre de grandeur) ?',
+        opts: ['~3 000€/kg', '~30 000€/kg', '~80 000€/kg', '~300 000€/kg'],
+        ans: 2,
+        exp: 'L\'or est coté en dollars par once troy (~31g). À ~3 000$/once en 2025, cela donne ~97 000$/kg ≈ ~80 000-90 000€/kg.'
+    },
+    {
+        type: 'tech',
+        ep: 'The Final',
+        q: 'Vega d\'un forward construit comme call - put européen (même strike) ?',
+        opts: ['Positif', 'Négatif', 'Nul — le vega du call et du put s\'annulent exactement', 'Dépend de la maturité'],
+        ans: 2,
+        exp: 'Par la parité put-call : F = Call - Put. Le Vega(Call) = Vega(Put) pour options même strike, même maturité. Donc Vega(Forward) = 0.'
+    },
+    {
+        type: 'brain',
+        ep: 'The Final',
+        q: 'Avec 3 dés, quelle est la probabilité d\'obtenir la somme de 18 ?',
+        opts: ['1/6', '1/36', '1/216', '3/216'],
+        ans: 2,
+        exp: 'La seule façon d\'obtenir 18 avec 3 dés est (6,6,6). La probabilité est (1/6)³ = 1/216.'
+    },
+    {
+        type: 'tech',
+        ep: 'The Final',
+        q: 'Si tu es long un call binaire dans la monnaie, quel est le signe de ton Vega ?',
+        opts: ['Positif — plus de vol = plus de chances d\'être ITM', 'Négatif — plus de vol augmente la chance de sortir de la zone gagnante', 'Nul', 'Dépend de la distance au strike'],
+        ans: 1,
+        exp: 'Un call binaire ITM paie 1 si S_T > K. Si tu es déjà ITM, une hausse de vol augmente la probabilité que le prix repasse sous le strike. Le Vega est donc NÉGATIF pour un binaire ITM.'
+    },
+    {
+        type: 'tech',
+        ep: 'The Final',
+        q: 'Prix forward sur 5 ans, 10% de dividendes par an, taux nuls ?',
+        opts: ['~50%', '~60%', '~80%', '~100%'],
+        ans: 1,
+        exp: 'F = S × (1-q)^T = 100% × (0,90)^5 ≈ 59%. Avec taux nuls, le forward est simplement le spot diminué des dividendes.'
+    },
+    {
+        type: 'tech',
+        ep: 'The Final',
+        q: 'Différence entre stratégie momentum et mean reversion ?',
+        opts: ['Momentum = parier sur une correction ; mean reversion = parier sur la continuation', 'Momentum = parier sur la continuation de la tendance ; mean reversion = parier sur un retour à la moyenne', 'Elles sont identiques mais sur des horizons différents', 'Momentum = long vol ; mean reversion = short vol'],
+        ans: 1,
+        exp: 'Momentum : ce qui monte continue de monter. Mean reversion : les prix tendent à revenir vers leur moyenne historique. Approches fondamentalement opposées.'
+    },
+    {
+        type: 'tech',
+        ep: 'The Final',
+        q: 'Var Swap standard vs Var Swap capé : lequel est le moins cher ?',
+        opts: ['Le standard', 'Le capé — car la protection est limitée, le vendeur peut offrir un meilleur prix', 'Ils ont le même prix', 'Dépend du niveau du cap'],
+        ans: 1,
+        exp: 'Le Var Swap capé limite le payoff maximum. L\'acheteur vend implicitement un call sur la variance et collecte cette prime → le Var Swap capé coûte moins cher.'
+    },
+    {
+        type: 'tech',
+        ep: 'The Final',
+        q: 'Tu es short d\'un forward et le dividende est annulé. Tu gagnes ou tu perds ?',
+        opts: ['Tu gagnes — le forward monte, or tu es short', 'Tu perds — le forward baisse sans dividende', 'Aucun impact', 'Tu gagnes car le forward se normalise'],
+        ans: 0,
+        exp: 'F = S × e^(r-q)T. Si le dividende (q) est annulé, le forward augmente. Tu es short forward = tu dois acheter plus cher. Tu perds.'
+    },
+    {
+        type: 'tech',
+        ep: 'The Final',
+        q: 'Taux 1 an à 2%, taux 2 ans à 3% : le taux forward 1 an dans 1 an est-il > ou < à 3% ?',
+        opts: ['Inférieur à 3%', 'Égal à 3%', 'Supérieur à 3%', 'Impossible à calculer'],
+        ans: 2,
+        exp: '(1,03)² / (1,02) - 1 ≈ 4%. Pour qu\'une courbe croissante soit cohérente, les taux forwards doivent être encore plus élevés que les taux spots.'
+    },
+    {
+        type: 'brain',
+        ep: 'The Final',
+        q: 'Développement limité de 1/(1+x) à l\'ordre 1 ?',
+        opts: ['1 + x', '1 - x', '1/(1-x)', 'x - 1'],
+        ans: 1,
+        exp: 'DL de 1/(1+x) en x=0 à l\'ordre 1 : 1 - x + O(x²). Utile pour les approximations en finance (taux faibles).'
+    },
+    {
+        type: 'tech',
+        ep: 'The Final',
+        q: 'Combien vaut un call 100 up-and-out 80 quand le spot est à 100 ?',
+        opts: ['~8€ comme un call vanille', '0 — la barrière haute de 80 est déjà franchie par le spot à 100', '~4€ — la barrière réduit de moitié la valeur', '~2€ — valeur résiduelle'],
+        ans: 1,
+        exp: 'Un call up-and-out est désactivé si le spot TOUCHE la barrière haute (80). Or le spot est déjà à 100 > 80. La barrière a été franchie → le call est mort, il vaut 0.'
+    },
+    {
+        type: 'brain',
+        ep: 'The Final',
+        q: 'Info privilégiée : une action prend +20% demain. Quelle stratégie optionnelle mets-tu en place ?',
+        opts: ['Acheter des calls OTM pour maximiser le levier', 'Vendre des puts pour collecter la prime', 'Acheter des calls — c\'est légal car stratégie directionnelle', 'Rien — utiliser une information privilégiée est un délit d\'initié'],
+        ans: 3,
+        exp: 'Utiliser une information non publique pour trader est un délit d\'initié, punissable pénalement. La bonne réponse en entretien : reconnaître l\'illégalité.'
+    },
+    {
+        type: 'coding',
+        ep: 'The Final',
+        q: 'Comment coder N factoriel en Python avec une boucle ?',
+        opts: ['result = 0; for i in range(1,N+1): result += i', 'result = 1; for i in range(1,N+1): result *= i', 'result = N; while N > 0: result *= N; N -= 1', 'return sum(range(1,N+1))'],
+        ans: 1,
+        exp: 'N! = 1 × 2 × ... × N. On initialise result=1 (élément neutre de la multiplication) et on multiplie successivement.'
+    },
+    {
+        type: 'market',
+        ep: 'Candidate Ép.2',
+        q: 'Qui est le chairman de la Fed nommé récemment (2025) ?',
+        opts: ['Jerome Powell', 'Janet Yellen', 'Kevin Warsh', 'Ben Bernanke'],
+        ans: 2,
+        exp: 'En 2025, Trump a nommé Kevin Warsh pour prendre la tête de la Fed. Il était déjà gouverneur de la Fed de 2006 à 2011.'
+    },
+    {
+        type: 'tech',
+        ep: 'Candidate Ép.2',
+        q: 'Quel est le delta d\'un call out-of-the-money proche de la maturité ?',
+        opts: ['Proche de -0,5', 'Proche de +0,5', 'Proche de 0', 'Proche de +1'],
+        ans: 2,
+        exp: 'Un call OTM proche de la maturité a un delta proche de 0 : la probabilité que le sous-jacent finisse au-dessus du strike est très faible.'
+    },
+    {
+        type: 'brain',
+        ep: 'Candidate Ép.2',
+        q: 'Action à 100€. Jour 1 : +10%. Jour 2 : -10%. Résultat ?',
+        opts: ['Gain — 10% de hausse annule 10% de baisse', 'Break even — les pourcentages s\'annulent', 'Perte — 100 × 1,10 × 0,90 = 99€', 'Gain — car la hausse du Jour 1 crée une base plus élevée'],
+        ans: 2,
+        exp: '100 × 1,10 = 110. 110 × 0,90 = 99. Tu perds 1€. Les rendements composés ne s\'annulent pas arithmétiquement.'
+    },
+    {
+        type: 'tech',
+        ep: 'Candidate Ép.2',
+        q: 'Qu\'est-ce qu\'un straddle ?',
+        opts: ['Achat d\'un call et d\'un put avec des strikes différents (strangle)', 'Achat d\'un call et d\'un put avec le même strike et même maturité', 'Vente d\'un call et achat d\'un put même strike', 'Achat d\'un call avec deux maturités différentes'],
+        ans: 1,
+        exp: 'Straddle = long call + long put, MÊME strike, MÊME maturité. On profite si le sous-jacent bouge fortement dans un sens OU dans l\'autre.'
+    },
+    {
+        type: 'brain',
+        ep: 'Candidate Ép.2',
+        q: 'Superficie de la France en km² (ordre de grandeur) ?',
+        opts: ['~200 000 km²', '~350 000 km²', '~550 000 km²', '~900 000 km²'],
+        ans: 2,
+        exp: 'La France métropolitaine couvre environ 551 695 km². Guestimate : ~750km × ~600km × 0,65 (hexagone) ≈ 290 000 km² (sous-estimation). La vraie réponse est ~550 000 km².'
+    },
+    {
+        type: 'tech',
+        ep: 'Candidate Ép.2',
+        q: 'Duration d\'un zéro coupon de maturité 3 ans ?',
+        opts: ['0 an', '1,5 an', '3 ans', 'Dépend du taux'],
+        ans: 2,
+        exp: 'La duration de Macaulay d\'un zéro coupon est toujours égale à sa maturité. Il n\'y a qu\'un seul flux, à maturité.'
+    },
+    {
+        type: 'brain',
+        ep: 'Candidate Ép.2',
+        q: '1 once d\'or ou 10 barils de pétrole en 2025 ?',
+        opts: ['L\'once d\'or — elle vaut ~3 000$', 'Les barils — ils valent ~700$', 'Les barils — le pétrole est plus rare', 'Équivalent — même valeur'],
+        ans: 0,
+        exp: 'Or ~3 000$/once. Pétrole ~70$/baril → 10 barils = 700$. L\'once d\'or vaut ~4x les 10 barils.'
+    },
+    {
+        type: 'tech',
+        ep: 'Candidate Ép.2',
+        q: 'Pourquoi critique-t-on la normalité de la distribution des rendements ?',
+        opts: ['Les rendements sont toujours positifs', 'Les queues épaisses (fat tails) sous-estiment la probabilité des événements extrêmes', 'La distribution normale s\'applique mieux aux taux', 'Les rendements suivent une loi log-normale'],
+        ans: 1,
+        exp: 'Les rendements financiers ont des queues épaisses (leptokurtose). Les crashes arrivent bien plus souvent que ne le prédit la loi normale. Black-Scholes sous-estime donc le risque de queues.'
+    },
+    {
+        type: 'brain',
+        ep: 'Candidate Ép.2',
+        q: 'Futur sur matière première : tu préfères une courbe en contango ou en backwardation ?',
+        opts: ['Contango — les prix futurs sont plus élevés que le spot, donc tu gagnes', 'Backwardation — les prix futurs sont inférieurs au spot, donc tu gagnes si tu es acheteur de futur', 'Indifférent', 'Contango si tu es vendeur, backwardation si tu es acheteur'],
+        ans: 1,
+        exp: 'En backwardation, le futur est moins cher que le spot. Si tu achètes le futur et que la courbe revient vers le spot, tu réalises un gain de roll yield.'
+    },
+    {
+        type: 'tech',
+        ep: 'Candidate Ép.2',
+        q: 'Loi normale : probabilité d\'être à plus d\'un écart-type de la moyenne (dans les deux sens) ?',
+        opts: ['~5%', '~16%', '~32%', '~68%'],
+        ans: 2,
+        exp: 'La règle des 68-95-99,7 : 68% des observations sont dans [-1σ, +1σ]. Donc 32% sont en dehors. Chaque queue contient ~16%.'
+    },
+    {
+        type: 'tech',
+        ep: 'Candidate Ép.2',
+        q: 'Variance de la somme de deux variables aléatoires corrélées X1 et X2 ?',
+        opts: ['Var(X1) + Var(X2)', 'Var(X1) + Var(X2) + 2×Cov(X1,X2)', 'Var(X1) × Var(X2)', 'Var(X1) + Var(X2) - 2×Cov(X1,X2)'],
+        ans: 1,
+        exp: 'Var(X1+X2) = Var(X1) + Var(X2) + 2×Cov(X1,X2). Base de la théorie du portefeuille (matrice de covariance).'
+    },
+    {
+        type: 'tech',
+        ep: 'Candidate Ép.2',
+        q: 'Lot A = call 95 + call 105 vs Lot B = 2 calls à 100 : lequel choisir ?',
+        opts: ['Lot B — 2 calls ATM ont plus de valeur intrinsèque', 'Lot A — par convexité du prix des options, deux strikes différents valent plus que la moyenne', 'Équivalent', 'Lot B — plus simple à gérer'],
+        ans: 1,
+        exp: 'Par la convexité du prix des options (Jensen), la valeur moyenne de call(95) + call(105) est supérieure à 2×call(100). Lot A > Lot B.'
+    },
+    {
+        type: 'brain',
+        ep: 'Candidate Ép.2',
+        q: '1 milliard€ maintenant (non investissable) ou 10 centimes à 10% journalier pendant 1 an ?',
+        opts: ['1 milliard€ — c\'est une somme colossale', '10 centimes — 0,10 × 1,10^365 >> 1 milliard', 'Équivalent', '1 milliard€ — 10 centimes ne rattrape pas'],
+        ans: 1,
+        exp: '0,10 × 1,10^365 dépasse largement 1 milliard grâce à la capitalisation exponentielle. En 120 jours environ, on atteint déjà le million.'
+    },
+    {
+        type: 'brain',
+        ep: 'Candidate Ép.2',
+        q: 'Tournoi de tennis à 100 participants, élimination directe. Combien de matchs pour désigner le gagnant ?',
+        opts: ['50 matchs', '99 matchs', '100 matchs', '127 matchs'],
+        ans: 1,
+        exp: 'Chaque match élimine exactement 1 joueur. Pour passer de 100 à 1, il faut éliminer 99 joueurs → 99 matchs.'
+    },
+    {
+        type: 'market',
+        ep: 'Candidate Ép.2',
+        q: 'Combien vaut un point de base sur 1 million€ ?',
+        opts: ['0,01€', '1€', '100€', '10 000€'],
+        ans: 2,
+        exp: '1 point de base = 0,01% = 0,0001. Sur 1M€ : 1 000 000 × 0,0001 = 100€.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.6',
+        q: 'Taux US 10 ans et OAT 10 ans en 2025 (ordre de grandeur) ?',
+        opts: ['US ~1%, OAT ~0,5%', 'US ~4,5%, OAT ~3,5%', 'US ~7%, OAT ~5%', 'US ~4,5%, OAT ~1%'],
+        ans: 1,
+        exp: 'En 2025, après le cycle de hausse de la Fed, le US 10 ans est ~4,2-4,7%, l\'OAT 10 ans ~3,2-3,8%.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.2',
+        q: 'Capitalisation boursière d\'Apple en 2025 (ordre de grandeur) ?',
+        opts: ['~500 Mds$', '~1 500 Mds$', '~3 000 Mds$', '~8 000 Mds$'],
+        ans: 2,
+        exp: 'Apple vaut environ 3 000 Mds$ en 2025, supérieur au PIB de la France (~2 800 Mds€).'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.3',
+        q: 'Capitalisation boursière de Nvidia en 2025 ?',
+        opts: ['~500 Mds$', '~1 500 Mds$', '~3 000 Mds$', '~10 000 Mds$'],
+        ans: 2,
+        exp: 'Nvidia a franchi les 3 000 Mds$ grâce à la demande explosive pour ses GPU pour l\'IA. Elle rivalise avec Apple et Microsoft.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.5',
+        q: 'Trump veut que la Fed baisse les taux. Si la Fed les monte de façon surprenante, que fait la parité EUR/USD ?',
+        opts: ['L\'EUR/USD monte — l\'euro se renforce', 'L\'EUR/USD baisse — le dollar se renforce car ses taux deviennent plus attractifs', 'Pas d\'impact sur le change', 'L\'EUR/USD monte car les marchés actions américains montent'],
+        ans: 1,
+        exp: 'Une hausse surprise des taux américains rend les actifs en dollars plus attractifs. Les capitaux affluent vers le dollar → EUR/USD baisse.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.5',
+        q: 'La BCE a-t-elle eu des taux négatifs ? Dans quel contexte ?',
+        opts: ['Non, c\'est interdit par les statuts', 'Oui, entre 2014 et 2022 pour stimuler l\'économie et lutter contre la déflation', 'Oui, uniquement pendant le Covid en 2020', 'Non, mais certains pays européens l\'ont fait'],
+        ans: 1,
+        exp: 'La BCE a pratiqué des taux négatifs sur sa facilité de dépôt de -0,1% (2014) jusqu\'à -0,5% (2019), puis remontée en 2022.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.3',
+        q: 'Qu\'est-ce qui s\'est passé lors de la crise des subprimes 2008 ?',
+        opts: ['Les banques ont fait faillite à cause de mauvais investissements en Asie', 'Des prêts immobiliers accordés à des emprunteurs peu solvables ont été titrisés et revendus. Quand l\'immobilier a chuté, tout le système s\'est effondré', 'La Fed a mal géré les taux, créant une bulle obligataire', 'Les hedge funds ont massivement shortés les banques'],
+        ans: 1,
+        exp: 'Les subprimes = prêts hypothécaires à risque, titrisés (CDO, MBS) et revendus. Quand le marché immobilier US a chuté, les pertes en cascade ont provoqué la faillite de Lehman Brothers.'
+    },
+    {
+        type: 'brain',
+        ep: 'TFG Ép.6',
+        q: '47 × 53 en calcul mental (identité remarquable) ?',
+        opts: ['2491 — (50-3)(50+3) = 2500-9', '2401 — 7² × 49', '2531 — 47×53 directement', '2209 — 47²'],
+        ans: 0,
+        exp: '47 × 53 = (50-3)(50+3) = 50² - 3² = 2500 - 9 = 2491. L\'identité (a-b)(a+b) = a²-b² est la technique de calcul mental la plus efficace pour les produits symétriques autour d\'un nombre rond.'
+    },
+    {
+        type: 'market',
+        ep: 'TFG Ép.2',
+        q: 'EUR/USD en 2025 (ordre de grandeur) ?',
+        opts: ['0,85 (parité en faveur du dollar)', '1,08 (légère appréciation de l\'euro)', '1,20 (forte appréciation de l\'euro)', '1,40 (euro très fort)'],
+        ans: 1,
+        exp: 'En 2025, le cours EUR/USD fluctue autour de 1,05-1,15. La valeur de 1,08 est un bon ordre de grandeur.'
+    },
+    ];
+
+    let filtered = [...ALL_QUESTIONS];
+    let currentFilter = 'all';
+    let quizQuestions = [];
+    let shuffledOpts = [];
+    let current = 0;
+    let score = 0;
+    let answered = [];
+    let selectedMode = 'all';
+    let timerInterval = null;
+    let seconds = 0;
+
+    function showTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+        btn.classList.add('active');
+        const filterBar = document.getElementById('filter-bar');
+        if (filterBar)
+            filterBar.style.display = id === 'quiz' ? 'flex' : 'none';
     }
-    return `<button class="${cls}" onclick="answer(${i})" ${isAnswered ? 'disabled' : ''}>${String.fromCharCode(65+i)}. ${o}</button>`;
-  }).join('');
 
-  let expHtml = isAnswered ? `<div class="explanation"><strong>Explication :</strong> ${q.exp}</div>` : '';
+    function setFilter(type, btn) {
+        currentFilter = type;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filtered = type === 'all' ? [...ALL_QUESTIONS] : ALL_QUESTIONS.filter(q => q.type === type);
+        document.getElementById('start-screen').style.display = 'block';
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'none';
+    }
 
-  document.getElementById('question-container').innerHTML = `
+    function selectMode(mode, el) {
+        selectedMode = mode;
+        document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function shuffleOptions(q) {
+        const opts = q.opts.map((o, i) => ({
+            text: o,
+            origIdx: i
+        }));
+        for (let i = opts.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [opts[i], opts[j]] = [opts[j], opts[i]];
+        }
+        return opts;
+    }
+
+    function startQuiz() {
+        let pool = [...filtered];
+        shuffle(pool);
+        if (selectedMode === 'random30')
+            pool = pool.slice(0, Math.min(30, pool.length));
+        else if (selectedMode === 'random10')
+            pool = pool.slice(0, Math.min(10, pool.length));
+        quizQuestions = pool;
+        shuffledOpts = quizQuestions.map(q => shuffleOptions(q));
+        answered = new Array(quizQuestions.length).fill(null);
+        current = 0;
+        score = 0;
+        seconds = 0;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('result-screen').style.display = 'none';
+        startTimer();
+        renderQuestion();
+    }
+
+    function startTimer() {
+        if (timerInterval)
+            clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            seconds++;
+            const el = document.getElementById('timer-display');
+            if (el)
+                el.textContent = formatTime();
+        }, 1000);
+    }
+
+    function formatTime() {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return m + ':' + s;
+    }
+
+    const badgeMap = {
+        tech: 'badge-tech',
+        market: 'badge-market',
+        brain: 'badge-brain',
+        fit: 'badge-fit',
+        coding: 'badge-coding'
+    };
+    const labelMap = {
+        tech: 'Technique',
+        market: 'Marché',
+        brain: 'Brainteaser',
+        fit: 'Fit',
+        coding: 'Coding'
+    };
+
+    function renderQuestion() {
+        const q = quizQuestions[current];
+        const opts = shuffledOpts[current];
+        const total = quizQuestions.length;
+        document.getElementById('progress-fill').style.width = ((current) / total * 100) + '%';
+        document.getElementById('q-counter').textContent = 'Question ' + (current + 1) + ' / ' + total;
+        document.getElementById('score-live').innerHTML = 'Score : <strong>' + score + '</strong> &nbsp; <span id="timer-display">' + formatTime() + '</span>';
+
+        const isAnswered = answered[current] !== null;
+        const userShuffIdx = answered[current];
+        const correctShuffIdx = opts.findIndex(o => o.origIdx === q.ans);
+
+        const letters = ['A', 'B', 'C', 'D'];
+        let optHtml = opts.map((o, i) => {
+            let cls = 'opt-btn';
+            if (isAnswered) {
+                if (i === correctShuffIdx)
+                    cls += ' correct';
+                else if (i === userShuffIdx && i !== correctShuffIdx)
+                    cls += ' wrong';
+            }
+            return `<button class="${cls}" onclick="answer(${i})" ${isAnswered ? 'disabled' : ''}>${letters[i]}. ${o.text}</button>`;
+        }).join('');
+
+        let expHtml = isAnswered ? `<div class="explanation"><strong>Explication :</strong> ${q.exp}</div>` : '';
+
+        document.getElementById('question-container').innerHTML = `
     <div class="qcard">
       <div class="qcard-meta">
-        <span class="badge ${badgeMap[q.type]}">${labelMap[q.type]}</span>
+        <span class="badge ${
+
+        badgeMap[q.type]}">${labelMap[q.type]}</span>
         <span class="ep-tag">${q.ep}</span>
         <span class="qnum">Q${current + 1}</span>
       </div>
-      <div class="qtext">${q.q}</div>
+      <div class="qtext">${
+        q.q}</div>
       <div class="options">${optHtml}</div>
       ${expHtml}
-    </div>`;
+    </div>`
+        ;
 
-  document.getElementById('prev-btn').disabled = current === 0;
-  document.getElementById('next-btn').textContent = current === total - 1 ? 'Voir les résultats' : 'Suivant →';
-}
+        document.getElementById('prev-btn').disabled = current === 0;
+        document.getElementById('next-btn').textContent = current === total - 1 ? 'Voir les résultats' : 'Suivant →';
+    }
 
-function answer(idx) {
-  if (answered[current] !== null) return;
-  answered[current] = idx;
-  if (idx === quizQuestions[current].ans) score++;
-  document.getElementById('score-live').innerHTML = 'Score : <strong>' + score + '</strong> | <span id="timer-display">' + formatTime() + '</span>';
-  renderQuestion();
-}
+    function answer(shuffIdx) {
+        if (answered[current] !== null)
+            return;
+        answered[current] = shuffIdx;
+        const q = quizQuestions[current];
+        const opts = shuffledOpts[current];
+        const correctShuffIdx = opts.findIndex(o => o.origIdx === q.ans);
+        if (shuffIdx === correctShuffIdx)
+            score++;
+        renderQuestion();
+    }
 
-function formatTime() {
-  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-  const s = (seconds % 60).toString().padStart(2, '0');
-  return m + ':' + s;
-}
+    function nextQ() {
+        if (current === quizQuestions.length - 1)
+            showResults();
+        else {
+            current++;
+            renderQuestion();
+        }
+    }
 
-function nextQ() {
-  if (current === quizQuestions.length - 1) {
-    showResults();
-  } else {
-    current++;
-    renderQuestion();
-  }
-}
+    function prevQ() {
+        if (current > 0) {
+            current--;
+            renderQuestion();
+        }
+    }
 
-function prevQ() {
-  if (current > 0) { current--; renderQuestion(); }
-}
+    function showResults() {
+        clearInterval(timerInterval);
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        const total = quizQuestions.length;
+        const pct = Math.round(score / total * 100);
+        document.getElementById('final-score').textContent = score + '/' + total;
+        document.getElementById('final-label').textContent = pct + '% de réussite — ' + formatTime();
+        const msgs = [[90, 'Pierre Chartier te recrute directement !'], [75, 'Niveau entretien finance de marché — solide !'], [60, 'Bon niveau, quelques lacunes à combler'], [40, 'En cours de formation — continue à bosser'], [0, 'Premier contact avec la finance de marché — ne lâche pas !']];
+        const msg = msgs.find(([t]) => pct >= t);
+        document.getElementById('score-msg').textContent = msg ? msg[1] : '';
+        const cats = {
+            tech: 'Technique',
+            market: 'Marché',
+            brain: 'Brainteasers',
+            fit: 'Fit',
+            coding: 'Coding'
+        };
+        let bkHtml = '';
+        for (const [type, label] of Object.entries(cats)) {
+            const idxs = quizQuestions.map((q, i) => q.type === type ? i : -1).filter(i => i >= 0);
+            if (!idxs.length)
+                continue;
+            const opts_arr = idxs.map(i => shuffledOpts[i]);
+            const correct = idxs.filter(i => {
+                const correctShuffIdx = shuffledOpts[i].findIndex(o => o.origIdx === quizQuestions[i].ans);
+                return answered[i] === correctShuffIdx;
+            }).length;
+            const c = type === 'tech' ? '#60a5fa' : type === 'market' ? '#4ade80' : type === 'brain' ? '#a78bfa' : type === 'fit' ? '#fb923c' : '#f472b6';
+            bkHtml += `<div class="bk"><div class="bk-num" style="color:${c}">${correct}/${idxs.length}</div><div class="bk-label">${label}</div></div>`;
+        }
+        document.getElementById('breakdown').innerHTML = bkHtml;
+    }
 
-function showResults() {
-  clearInterval(timerInterval);
-  document.getElementById('quiz-screen').style.display = 'none';
-  document.getElementById('result-screen').style.display = 'block';
-  const total = quizQuestions.length;
-  const pct = Math.round(score / total * 100);
-  document.getElementById('final-score').textContent = score + '/' + total;
-  document.getElementById('final-label').textContent = pct + '% de réussite — ' + formatTime();
-
-  const msgs = [
-    [90, '🏆 Pierre Chartier te recrute directement !'],
-    [75, '🔥 Niveau entretien finance de marché — solide !'],
-    [60, '📈 Bon niveau, quelques lacunes à combler'],
-    [40, '📚 En cours de formation — continue à bosser'],
-    [0,  '💡 Premier contact avec la finance de marché — ne lâche pas !']
-  ];
-  const msg = msgs.find(([threshold]) => pct >= threshold);
-  document.getElementById('score-msg').textContent = msg ? msg[1] : '';
-
-  const cats = {tech:'Technique',market:'Marché',brain:'Brainteasers',fit:'Fit',coding:'Coding'};
-  let bkHtml = '';
-  for (const [type, label] of Object.entries(cats)) {
-    const qOfType = quizQuestions.filter((q, i) => q.type === type);
-    if (qOfType.length === 0) continue;
-    const correct = qOfType.filter((q, i) => {
-      const idx = quizQuestions.indexOf(q);
-      return answered[idx] === q.ans;
-    }).length;
-    const c = type === 'tech' ? '#60a5fa' : type === 'market' ? '#4ade80' : type === 'brain' ? '#a78bfa' : type === 'fit' ? '#fb923c' : '#f472b6';
-    bkHtml += `<div class="bk"><div class="bk-num" style="color:${c}">${correct}/${qOfType.length}</div><div class="bk-label">${label}</div></div>`;
-  }
-  document.getElementById('breakdown').innerHTML = bkHtml;
-}
-
-function restartQuiz() {
-  document.getElementById('result-screen').style.display = 'none';
-  document.getElementById('start-screen').style.display = 'block';
-}
-</script>
+    function restartQuiz() {
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'block';
+    }
+    </script>
 </body>
 </html>
