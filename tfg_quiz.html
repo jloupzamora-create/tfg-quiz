@@ -691,8 +691,7 @@
             <button class="filter-btn" onclick="setFilter('tech',this)">Technique</button>
             <button class="filter-btn" onclick="setFilter('market',this)">Marché</button>
             <button class="filter-btn" onclick="setFilter('brain',this)">Brainteasers</button>
-            <button class="filter-btn" onclick="setFilter('fit',this)">Fit</button>
-            <button class="filter-btn" onclick="setFilter('coding',this)">Coding</button>
+
         </div>
         <div class="quiz-area">
             <div id="start-screen">
@@ -1664,14 +1663,6 @@
         exp: 'Un floor à 0% : l\'acheteur reçoit si le taux passe sous 0%. Le vendeur pariait que les taux ne descendraient pas davantage, encaissant la prime gratuitement.'
     },
     {
-        type: 'coding',
-        ep: 'TFG Ép.5',
-        q: 'Suite de Fibonacci : comment l\'initialiser correctement en code ?',
-        opts: ['F(0)=1, F(1)=1, F(n)=F(n-1)+F(n-2)', 'F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)', 'F(0)=0, F(1)=0, F(n)=F(n-1)+F(n-2)', 'F(0)=1, F(1)=2, F(n)=F(n-1)+F(n-2)'],
-        ans: 1,
-        exp: 'La suite standard : 0, 1, 1, 2, 3, 5, 8, 13... Initialisation : F(0)=0, F(1)=1, puis F(n)=F(n-1)+F(n-2).'
-    },
-    {
         type: 'tech',
         ep: 'TFG Ép.5',
         q: 'Pourquoi les forwards existent encore malgré le risque de contrepartie plus élevé ?',
@@ -1838,14 +1829,6 @@
         opts: ['Acheter des calls OTM pour maximiser le levier', 'Vendre des puts pour collecter la prime', 'Acheter des calls — c\'est légal car stratégie directionnelle', 'Rien — utiliser une information privilégiée est un délit d\'initié'],
         ans: 3,
         exp: 'Utiliser une information non publique pour trader est un délit d\'initié, punissable pénalement. La bonne réponse en entretien : reconnaître l\'illégalité.'
-    },
-    {
-        type: 'coding',
-        ep: 'The Final',
-        q: 'Comment coder N factoriel en Python avec une boucle ?',
-        opts: ['result = 0; for i in range(1,N+1): result += i', 'result = 1; for i in range(1,N+1): result *= i', 'result = N; while N > 0: result *= N; N -= 1', 'return sum(range(1,N+1))'],
-        ans: 1,
-        exp: 'N! = 1 × 2 × ... × N. On initialise result=1 (élément neutre de la multiplication) et on multiplie successivement.'
     },
     {
         type: 'market',
